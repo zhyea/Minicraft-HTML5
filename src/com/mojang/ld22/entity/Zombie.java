@@ -7,7 +7,7 @@ import com.mojang.ld22.item.resource.Resource;
 
 public class Zombie extends Mob {
 	private int xa, ya;
-	private int lvl;
+	public int lvl; // public: save serializer (com.mojang.ld22.save.EntityIO) round-trips it
 	private int randomWalkTime = 0;
 
 	public Zombie(int lvl) {

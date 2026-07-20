@@ -60,7 +60,7 @@ public class ContainerMenu extends Menu {
 		Font.renderFrame(screen, title, 1, 1, 12, 11);
 		renderItemList(screen, 1, 1, 12, 11, container.items, window == 0 ? selected : -oSelected - 1);
 
-		Font.renderFrame(screen, "inventory", 13, 1, 13 + 11, 11);
+		Font.renderFrame(screen, "背包", 13, 1, 13 + 11, 11);
 		renderItemList(screen, 13, 1, 13 + 11, 11, player.inventory.items, window == 1 ? selected : -oSelected - 1);
 		screen.setOffset(0, 0);
 	}

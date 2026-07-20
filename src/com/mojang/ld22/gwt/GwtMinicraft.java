@@ -5,6 +5,8 @@ import com.google.gwt.event.dom.client.TouchEndEvent;
 import com.google.gwt.event.dom.client.TouchEndHandler;
 import com.google.gwt.event.dom.client.TouchStartEvent;
 import com.google.gwt.event.dom.client.TouchStartHandler;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Window;
@@ -36,9 +38,17 @@ public class GwtMinicraft {
         _gameHolder = new SimplePanel(game);
         _gameHolder.getElement().getStyle().setProperty("margin", "30px auto"); //horizontally center
 
-        _gameHolder.setWidth((Game.WIDTH * Game.SCALE) + "px");
+        _gameHolder.setWidth(game.getDisplayWidth() + "px");
+        // Keep the centering container in sync with the dynamic canvas size.
+        Window.addResizeHandler(new ResizeHandler() {
+            @Override
+            public void onResize(ResizeEvent event) {
+                _gameHolder.setWidth(game.getDisplayWidth() + "px");
+            }
+        });
 
         FlowPanel fp = new FlowPanel();
+        fp.addStyleName("appRoot");
         fp.add(getControls(game));
         fp.add(_gameHolder);
 

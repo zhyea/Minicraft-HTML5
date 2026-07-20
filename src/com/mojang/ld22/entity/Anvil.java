@@ -6,7 +6,7 @@ import com.mojang.ld22.screen.CraftingMenu;
 
 public class Anvil extends Furniture {
 	public Anvil() {
-		super("Anvil");
+		super("铁砧");
 		col = Color.get(-1, 000, 111, 222);
 		sprite = 0;
 		xr = 3;

@@ -13,7 +13,7 @@ public class ToolItem extends Item {
 
 	public static final int MAX_LEVEL = 5;
 	public static final String[] LEVEL_NAMES = { //
-	"Wood", "Rock", "Iron", "Gold", "Gem"//
+	"木", "石", "铁", "金", "宝石"//
 	};
 
 	public static final int[] LEVEL_COLORS = {//
@@ -50,7 +50,7 @@ public class ToolItem extends Item {
 	}
 
 	public String getName() {
-		return LEVEL_NAMES[level] + " " + type.name;
+		return LEVEL_NAMES[level] + type.name;
 	}
 
 	public void onTake(ItemEntity itemEntity) {

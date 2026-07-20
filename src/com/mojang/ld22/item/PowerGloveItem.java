@@ -26,7 +26,7 @@ public class PowerGloveItem extends Item {
 	}
 
 	public String getName() {
-		return "Pow glove";
+		return "力量手套";
 	}
 
 	public boolean interact(Player player, Entity entity, int attackDir) {

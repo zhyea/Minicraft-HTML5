@@ -110,6 +110,41 @@ public class Level {
 		}
 	}
 
+	/**
+	 * Private no-arg constructor used only by {@link #fromSave}; deliberately does
+	 * NOT call LevelGen, does NOT dig stairs, and does NOT spawn an AirWizard.
+	 */
+	private Level() {
+	}
+
+	/**
+	 * Rebuild a level purely from stored tile/data, bypassing world generation.
+	 * This is the load-game path: it must never trigger {@code LevelGen}, never
+	 * re-excavate stairs (they are already encoded in {@code tiles}), and never
+	 * auto-add an {@code AirWizard} (a saved boss is restored via the entities
+	 * list instead). Color/density are recomputed deterministically from
+	 * {@code depth}, matching the generation constructor's logic.
+	 */
+	public static Level fromSave(int w, int h, int depth, byte[] tiles, byte[] data) {
+		Level l = new Level();
+		l.w = w;
+		l.h = h;
+		l.depth = depth;
+		l.tiles = tiles;
+		l.data = data;
+
+		if (depth < 0) l.dirtColor = 222;
+		if (depth == 1) l.dirtColor = 444;
+		// monsterDensity: 8 only on the surface (depth 0), 4 elsewhere.
+		l.monsterDensity = (depth == 0) ? 8 : 4;
+
+		l.entitiesInTiles = new ArrayList[w * h];
+		for (int i = 0; i < w * h; i++) {
+			l.entitiesInTiles[i] = new ArrayList<Entity>();
+		}
+		return l;
+	}
+
 	public void renderBackground(Screen screen, int xScroll, int yScroll) {
 		int xo = xScroll >> 4;
 		int yo = yScroll >> 4;

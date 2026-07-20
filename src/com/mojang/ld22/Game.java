@@ -10,6 +10,8 @@ import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
@@ -25,6 +27,8 @@ import com.mojang.ld22.screen.DeadMenu;
 import com.mojang.ld22.screen.LevelTransitionMenu;
 import com.mojang.ld22.screen.Menu;
 import com.mojang.ld22.screen.TitleMenu;
+import com.mojang.ld22.save.SaveManager;
+import com.mojang.ld22.save.SaveStore;
 import com.mojang.ld22.screen.WonMenu;
 import com.mojang.ld22.sound.Sound;
 
@@ -32,7 +36,16 @@ public class Game extends Composite {
     public static final String NAME = "Minicraft";
     public static final int HEIGHT = 120;
     public static final int WIDTH = 160;
-    public static int SCALE = 3;
+
+    /** Autosave cadence: 1800 ticks @ ~60fps ≈ 30 seconds. */
+    private static final int AUTOSAVE_INTERVAL = 1800;
+
+    /**
+     * Current integer display scale (CSS multiplier applied to the fixed 160x120
+     * internal buffer). Computed from the viewport in {@link #computeScale()};
+     * never fixed, so the game fills large screens without blurring.
+     */
+    private int scale = 1;
 
     final boolean isMobileBrowser;
     final public Canvas canvas;
@@ -82,9 +95,7 @@ public class Game extends Composite {
 
     public Game(boolean isMobileBrowser) {
         this.isMobileBrowser = isMobileBrowser;
-        if (isMobileBrowser) {
-            SCALE*=2;
-        }
+        this.scale = computeScale();
 
         canvas = Canvas.createIfSupported();
         if (canvas == null) {
@@ -98,10 +109,18 @@ public class Game extends Composite {
         }
 
         canvas.setStyleName("mainCanvas");
-        canvas.setWidth(WIDTH * SCALE + "px");
+        applyDisplaySize();
         canvas.setCoordinateSpaceWidth(WIDTH);
-        canvas.setHeight(HEIGHT * SCALE + "px");
         canvas.setCoordinateSpaceHeight(HEIGHT);
+
+        // Recompute the integer scale and reapply the CSS size on viewport changes.
+        Window.addResizeHandler(new ResizeHandler() {
+            @Override
+            public void onResize(ResizeEvent event) {
+                scale = computeScale();
+                applyDisplaySize();
+            }
+        });
 
         context = canvas.getContext2d();
         imageData = context.createImageData(WIDTH, HEIGHT);
@@ -125,9 +144,52 @@ public class Game extends Composite {
             });
         }
 
+        // Persist the game when the page/tab is being closed. This is a synchronous
+        // localStorage write, which is safe to do here (saveGame() no-ops until a
+        // live player exists). It is fully independent of the resize handler above.
+        Window.addWindowClosingHandler(new Window.ClosingHandler() {
+            @Override
+            public void onWindowClosing(Window.ClosingEvent event) {
+                saveGame();
+            }
+        });
+
         input = new InputHandler(this);
 
         initWidget(canvas);
+    }
+
+    /**
+     * Largest integer scale at which the fixed 160x120 buffer still fits the
+     * viewport. Integer division (/ ) already floors, so the result is always an
+     * integer; clamps to >=1, and >=2 on mobile to preserve original readability.
+     */
+    private int computeScale() {
+        int sx = Window.getClientWidth() / WIDTH;
+        int sy = Window.getClientHeight() / HEIGHT;
+        int s = Math.min(sx, sy);
+        if (s < 1) s = 1;
+        if (isMobileBrowser && s < 2) s = 2;
+        return s;
+    }
+
+    /** Push the current scale into the canvas CSS size and keep pixels crisp. */
+    private void applyDisplaySize() {
+        canvas.setWidth(WIDTH * scale + "px");
+        canvas.setHeight(HEIGHT * scale + "px");
+        // Belt-and-suspenders: CSS already sets image-rendering, but the inline
+        // rule guarantees crisp upscaling even if the stylesheet is overridden.
+        canvas.getElement().getStyle().setProperty("image-rendering", "pixelated");
+    }
+
+    /** CSS pixel width of the displayed canvas (= WIDTH * scale). */
+    public int getDisplayWidth() {
+        return WIDTH * scale;
+    }
+
+    /** CSS pixel height of the displayed canvas (= HEIGHT * scale). */
+    public int getDisplayHeight() {
+        return HEIGHT * scale;
     }
 
     public void setMenu(Menu menu) {
@@ -162,6 +224,56 @@ public class Game extends Composite {
 
         for (int i = 0; i < 5; i++) {
             levels[i].trySpawn(5000);
+        }
+    }
+
+    public boolean hasSave() {
+        return SaveStore.hasSave();
+    }
+
+    /**
+     * Persist the current game. No-ops when there is no live player or the
+     * player is dead — we must never persist a removed player (doing so would
+     * re-trigger DeadMenu on the next load; see save-system-plan.md §8.4). Any
+     * storage failure (private mode, quota exceeded) is swallowed so gameplay is
+     * never blocked.
+     */
+    public void saveGame() {
+        if (player == null || player.removed) return;
+        try {
+            SaveStore.save(SaveManager.toJson(this));
+        } catch (Throwable t) {
+            // Storage unavailable or serialization error: fail silently.
+        }
+    }
+
+    /**
+     * Load the saved game. Rebuilds the 5 levels via {@link Level#fromSave}
+     * (bypassing world generation), the player without re-seeding starter items,
+     * and all entities/items, then drops straight into play. On a missing,
+     * corrupt, or version-mismatched save, a fresh world is started instead of
+     * crashing.
+     */
+    public void loadGame() {
+        String s = SaveStore.load();
+        if (s == null) {
+            resetGame();
+            setMenu(null);
+            return;
+        }
+        try {
+            SaveManager.fromJson(this, s);
+            playerDeadTime = 0;
+            wonTimer = 0;
+            hasWon = false;
+            pendingLevelChange = 0;
+            level = levels[currentLevel];
+            level.add(player);
+            setMenu(null);
+        } catch (Throwable t) {
+            // Corrupt or unsupported save: discard and start fresh.
+            resetGame();
+            setMenu(null);
         }
     }
 
@@ -273,6 +385,13 @@ public class Game extends Composite {
             input.releaseAll();
         } else {
             if (!player.removed && !hasWon) gameTime++;
+
+            // Periodic autosave during active play (≈30s). saveGame() itself
+            // guards against a dead/missing player, and menu!=null (title/menus)
+            // is excluded so we only snapshot a live game.
+            if (menu == null && gameTime > 0 && gameTime % AUTOSAVE_INTERVAL == 0) {
+                saveGame();
+            }
 
             input.tick();
             if (menu != null) {
@@ -422,7 +541,7 @@ public class Game extends Composite {
     }
 
     private void renderFocusNagger() {
-        String msg = "Click to focus!";
+        String msg = "点击聚焦！";
         int xx = (WIDTH - msg.length() * 8) / 2;
         int yy = (HEIGHT - 8) / 2;
         int w = msg.length();

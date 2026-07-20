@@ -7,10 +7,13 @@ import com.mojang.ld22.level.tile.Tile;
 import com.mojang.ld22.sound.Sound;
 
 public abstract class Mob extends Entity {
-	protected int walkDist = 0;
-	protected int dir = 0;
+	// NOTE: walkDist/dir/xKnockback/yKnockback are public (not protected) so the
+	// cross-package save serializer (com.mojang.ld22.save.EntityIO) can round-trip
+	// them without reflection or accessor boilerplate.
+	public int walkDist = 0;
+	public int dir = 0;
 	public int hurtTime = 0;
-	protected int xKnockback, yKnockback;
+	public int xKnockback, yKnockback;
 	public int maxHealth = 10;
 	public int health = maxHealth;
 	public int swimTimer = 0;

@@ -8,7 +8,7 @@ import com.mojang.ld22.item.resource.Resource;
 public class Slime extends Mob {
 	private int xa, ya;
 	private int jumpTime = 0;
-	private int lvl;
+	public int lvl; // public: save serializer (com.mojang.ld22.save.EntityIO) round-trips it
 
 	public Slime(int lvl) {
 		this.lvl = lvl;

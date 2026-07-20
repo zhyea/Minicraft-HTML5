@@ -1,0 +1,187 @@
+/*
+ * ============================================================================
+ * Minicraft-HTML5 — Gradle 构建（Ant build.xml 的等价替代）
+ * ============================================================================
+ *
+ * 本文件 1:1 复刻 build.xml 的编译行为与产出布局：
+ *   1) javac 把 src/ 全部 Java 源文件编译到 classes 目录（Ant: out/gwt-classes）
+ *   2) java com.google.gwt.dev.Compiler 前端编译（fork），产出 gwt-js-war 等
+ *   3) 把 war/ 整个拷贝进 build/gwt-js-war（最终可部署站点）
+ *
+ * 运行方式：
+ *   - 本地有 Gradle：              gradle build
+ *   - 或（已生成 wrapper）：        ./gradlew build
+ *   - 指定 GWT 家目录：            gradle build -Pgwt.home=/path/to/gwt-2.4.0
+ *   - 快速编译（草稿模式）：        gradle gwtCompile -Pgwt.draftCompile=yes
+ *   - 指定 GWT 编译 worker 数：     gradle build -Pgwt.localWorkers=4
+ *   - 生成 wrapper（需先装 Gradle）：gradle wrapper --gradle-version 8.10
+ *
+ * ----------------------------------------------------------------------------
+ *  ⚠ 本地环境坑（务必先读，否则 100% 跑不起来）：
+ * ----------------------------------------------------------------------------
+ *  A) JDK 版本：GWT 2.4 的 dev 工具链（com.google.gwt.dev.Compiler）对 JDK 11/17+
+ *     兼容性极差（内部大量反射 + 老 ASM / 老 JAXB 等），强烈建议用当初跑 Ant 成功时
+ *     的 JDK（JDK 6 / 7 / 8）来跑本 Gradle 构建。
+ *     同时把 sourceCompatibility / targetCompatibility 设成对应版本（如 1.8），
+ *     避免新版 javac 拒绝老语法，也避免 GWT 2.4 无法读取高版本字节码。
+ *  B) gwt.home：GWT 2.4 不在 Maven Central，jar 必须来自本地 GWT SDK 解压目录。
+ *     默认 ../gwt-2.4.0（与 build.properties 一致），可用 -Pgwt.home=... 覆盖。
+ *     目录内必须存在 gwt-user.jar / gwt-dev.jar / validation-api-1.0.0.GA*.jar。
+ *  C) Gradle 版本：本文件面向 Gradle 8.x 编写（使用 JavaExec.mainClass 写法）。
+ *     不依赖 Maven Central，全部用 files() 引用本地 jar。
+ *
+ *  ⚠ 需本地验证：gradle build
+ *     预期产出（等价 Ant 的 out/）：
+ *       build/gwt-js-war/            最终站点（编译后的 JS + war/ 静态资源）
+ *       build/gwt-js-temp/           GWT 工作目录
+ *       build/gwt-js-gen/            GWT 生成源码目录
+ *       build/gwt-js-extra/          GWT 额外产出（符号映射等）
+ *       build/classes/java/main/      javac 字节码（等价 out/gwt-classes）
+ * ============================================================================
+ */
+
+plugins {
+    id 'java'
+}
+
+/* --------------------------------------------------------------------------
+ * 属性解析（与 build.properties 默认值保持一致，均可用 -P 覆盖）
+ * ------------------------------------------------------------------------ */
+// 等价 Ant：<property name="gwt.home" value="../gwt-2.4.0"/>
+def gwtHome = project.findProperty('gwt.home') ?: '../gwt-2.4.0'
+
+// 等价 Ant：<property name="gwt.localWorkers" value="2"/>
+def gwtLocalWorkers = project.findProperty('gwt.localWorkers') ?: '2'
+
+// 等价 Ant：<property name="gwt.draftCompile" value="no"/>
+//           <condition ...><istrue value="${gwt.draftCompile}"/> => 仅当显式 yes 时加 -draftCompile
+def gwtDraftCompile = project.findProperty('gwt.draftCompile') == 'yes'
+
+group = 'com.mojang'
+version = '1.0'
+
+/* --------------------------------------------------------------------------
+ * JDK / 字节码目标（见顶部“本地环境坑 A”）
+ * 运行 Gradle 的 JDK 建议就是 JDK 8；这里把 javac 目标锁在 1.8。
+ * （Gradle 8 推荐改用 java { toolchain { languageVersion = JavaLanguageVersion.of(8) } }，
+ *  但老 SDK 离线环境用 toolchain 自动下载不可靠，故用显式 source/target。）
+ * ------------------------------------------------------------------------ */
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+/* --------------------------------------------------------------------------
+ * 仓库：不依赖 Maven Central（GWT 2.4 不在 Central，所有 jar 来自本地 SDK / lib）
+ * ------------------------------------------------------------------------ */
+repositories {
+    // 故意留空：所有依赖通过 files() 指向本地 GWT SDK 与 lib/。
+}
+
+/* --------------------------------------------------------------------------
+ * 源码集：与 Ant 一致，src/ 作为 Java 源根；
+ * 并让 resources 也包含 src/，使 .gwt.xml 进入编译 classpath（等价 Ant 把 src 目录加入 classpath）。
+ * ------------------------------------------------------------------------ */
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+        resources {
+            srcDirs = ['src']
+            // 不把 .java 当资源拷贝（源已由 java 插件编译）；其余（含 .gwt.xml / 图片 / css）保留。
+            exclude '**/*.java'
+        }
+    }
+}
+
+/* --------------------------------------------------------------------------
+ * 依赖：本地 GWT SDK jar + 项目自带 gwt-voices。
+ * 等价 Ant gwt-classpath：gwt-user / gwt-dev / validation-api / validation-api-sources / gwt-voices。
+ * （Ant 另把 ${java.class.path} 加入 classpath，通常为本机 Ant 启动 classpath，对 GWT 编译无影响，此处省略。）
+ * ------------------------------------------------------------------------ */
+dependencies {
+    implementation files("${gwtHome}/gwt-user.jar")
+    implementation files("${gwtHome}/gwt-dev.jar")
+    implementation files("${gwtHome}/validation-api-1.0.0.GA.jar")
+    implementation files("${gwtHome}/validation-api-1.0.0.GA-sources.jar")
+    implementation files("${project.projectDir}/lib/gwt-voices-2.1.6.jar")
+}
+
+/* --------------------------------------------------------------------------
+ * GWT 中间产物 / 最终站点目录（等价 Ant 的 out/... 布局，统一收口到 build/ 下）
+ * ------------------------------------------------------------------------ */
+def gwtWorkDir  = "${buildDir}/gwt-js-temp"
+def gwtGenDir   = "${buildDir}/gwt-js-gen"
+def gwtWarDir   = "${buildDir}/gwt-js-war"
+def gwtExtraDir = "${buildDir}/gwt-js-extra"
+
+/* --------------------------------------------------------------------------
+ * gwtCompile：等价 Ant 的 gwt-js-build target（含 gwt-js-compile2class 作为依赖）。
+ *   - fork=true  → 默认 JavaExec 即独立 JVM，等价于 fork
+ *   - mainClass  → com.google.gwt.dev.Compiler
+ *   - classpath  → compileJava 产物(classes) + 全部 gwt/voices jar + src 目录（找 .gwt.xml 与客户端源码）
+ *   - jvmArgs    → -Djava.awt.headless=true
+ *   - args       → 复刻 Ant 的 arg 列表
+ * ------------------------------------------------------------------------ */
+tasks.register('gwtCompile', JavaExec) {
+    group = 'gwt'
+    description = 'Runs com.google.gwt.dev.Compiler to build the JS frontend (fork, equivalent to Ant gwt-js-build).'
+
+    dependsOn compileJava
+
+    // 等价 Ant：<java classname="com.google.gwt.dev.Compiler" fork="true">
+    mainClass = 'com.google.gwt.dev.Compiler'
+
+    // 等价 Ant classpath：src 目录 + gwt-classpath（含 classes 产出与所有 gwt/voices jar）
+    classpath = sourceSets.main.runtimeClasspath
+            .plus(files(sourceSets.main.java.srcDirs))   // src 目录：定位 Minicraft.gwt.xml + 客户端源码
+
+    // 等价 Ant：<sysproperty key="java.awt.headless" value="true"/>
+    jvmArgs '-Djava.awt.headless=true'
+
+    // 等价 Ant args：先 -draftCompile（条件），再固定参数，末尾模块名。
+    def gwtArgs = []
+    if (gwtDraftCompile) {
+        gwtArgs << '-draftCompile'
+    }
+    gwtArgs << '-logLevel'   << 'INFO'
+    gwtArgs << '-workDir'    << gwtWorkDir
+    gwtArgs << '-gen'        << gwtGenDir
+    gwtArgs << '-war'        << gwtWarDir
+    gwtArgs << '-extra'      << gwtExtraDir
+    gwtArgs << '-localWorkers' << gwtLocalWorkers.toString()
+    gwtArgs << '-style'      << 'OBF'
+    gwtArgs << 'com.mojang.Minicraft'   // 模块名，对应 src/com/mojang/Minicraft.gwt.xml
+    args = gwtArgs
+
+    // 确保中间目录存在（等价 Ant 的 <mkdir>）
+    doFirst {
+        file(gwtWorkDir).mkdirs()
+        file(gwtGenDir).mkdirs()
+        file(gwtWarDir).mkdirs()
+        file(gwtExtraDir).mkdirs()
+    }
+
+    // 等价 Ant gwt-build：把 war/ 整个拷贝进 out/gwt-js-war（此处 build/gwt-js-war）
+    doLast {
+        copy {
+            from "${project.projectDir}/war"
+            into gwtWarDir
+        }
+    }
+}
+
+/* --------------------------------------------------------------------------
+ * 默认全量构建：等价 Ant default target "gwt-build"
+ *   gradle build  =  compileJava + gwtCompile（javac + GWT 编译 + war 拷贝）
+ * ------------------------------------------------------------------------ */
+build.dependsOn gwtCompile
+
+/* --------------------------------------------------------------------------
+ * gwtClean：等价 Ant gwt-clean，删除整个 build 目录。
+ * （Gradle 自带 clean 删除 build 效果相同；此处保留一个语义明确的别名。）
+ * ------------------------------------------------------------------------ */
+tasks.register('gwtClean', Delete) {
+    group = 'gwt'
+    description = 'Deletes the Gradle build output (equivalent to Ant gwt-clean).'
+    delete buildDir
+}

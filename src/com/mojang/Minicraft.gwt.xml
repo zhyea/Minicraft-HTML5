@@ -1,5 +1,7 @@
 <module rename-to="Minicraft">
     <inherits name='com.google.gwt.user.User'/>
+    <inherits name='com.google.gwt.canvas.Canvas'/>
+    <inherits name='com.google.gwt.storage.Storage'/>
     <inherits name='com.allen_sauer.gwt.voices.gwt-voices'/>
 
     <set-property name='user.agent' value='gecko1_8,ie9,safari,opera'/>

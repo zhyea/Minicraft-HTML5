@@ -31,16 +31,28 @@ public class Player extends Mob {
     private int onStairDelay;
     public int invulnerableTime = 0;
 
-    public Player(Game game, InputHandler input) {
-        this.game = game;
-        this.input = input;
-        x = 24;
-        y = 24;
-        stamina = maxStamina;
+	public Player(Game game, InputHandler input) {
+		this(game, input, true);
+	}
 
-        inventory.add(new FurnitureItem(new Workbench()));
-        inventory.add(new PowerGloveItem());
-    }
+	/**
+	 * @param seedStartingItems when true (normal new game) the default
+	 *        Workbench + PowerGlove are placed into the inventory. When false
+	 *        (load-game) the inventory is left empty so the saved contents can be
+	 *        restored without duplicating the starter items.
+	 */
+	public Player(Game game, InputHandler input, boolean seedStartingItems) {
+		this.game = game;
+		this.input = input;
+		x = 24;
+		y = 24;
+		stamina = maxStamina;
+
+		if (seedStartingItems) {
+			inventory.add(new FurnitureItem(new Workbench()));
+			inventory.add(new PowerGloveItem());
+		}
+	}
 
     public void tick() {
         super.tick();

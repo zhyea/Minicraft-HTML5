@@ -37,7 +37,7 @@ public class InventoryMenu extends Menu {
 	}
 
 	public void render(Screen screen) {
-		Font.renderFrame(screen, "inventory", 1, 1, 12, 11);
+		Font.renderFrame(screen, "背包", 1, 1, 12, 11);
 		renderItemList(screen, 1, 1, 12, 11, player.inventory.items, selected);
 	}
 }

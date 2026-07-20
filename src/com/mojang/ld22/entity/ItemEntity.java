@@ -6,7 +6,8 @@ import com.mojang.ld22.item.Item;
 import com.mojang.ld22.sound.Sound;
 
 public class ItemEntity extends Entity {
-	private int lifeTime;
+	// public: save serializer (com.mojang.ld22.save.EntityIO) round-trips them
+	public int lifeTime;
 	protected int walkDist = 0;
 	protected int dir = 0;
 	public int hurtTime = 0;
@@ -14,7 +15,7 @@ public class ItemEntity extends Entity {
 	public double xa, ya, za;
 	public double xx, yy, zz;
 	public Item item;
-	private int time = 0;
+	public int time = 0;
 
 	public ItemEntity(Item item, int x, int y) {
 		this.item = item;

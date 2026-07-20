@@ -71,6 +71,27 @@ public class Screen {
 				if (col < 255) pixels[(x + xp) + (y + yp) * w] = col;
 			}
 		}
+
+	/**
+	 * Draws an 8x8 1-bit glyph bitmap (on-pixel == 1) at (xp,yp) using the same
+	 * color mapping as {@link #render(int,int,int,int,int)}. Used by {@link Font}
+	 * for CJK / full-width characters so the 8px monospace grid and palette coloring
+	 * stay identical to ASCII text. {@code glyph} is a flat 64-int array indexed
+	 * {@code [x + y * 8]}; 1 means "on" (matching the font sheet convention).
+	 */
+	public void renderGlyph(int xp, int yp, int[] glyph, int colors) {
+		xp -= xOffset;
+		yp -= yOffset;
+		for (int y = 0; y < 8; y++) {
+			int ys = y;
+			if (y + yp < 0 || y + yp >= h) continue;
+			for (int x = 0; x < 8; x++) {
+				if (x + xp < 0 || x + xp >= w) continue;
+				int sp = glyph[x + ys * 8];
+				int col = (colors >> (sp * 8)) & 255;
+				if (col < 255) pixels[(x + xp) + (y + yp) * w] = col;
+			}
+		}
 	}
 
 	public void setOffset(int xOffset, int yOffset) {

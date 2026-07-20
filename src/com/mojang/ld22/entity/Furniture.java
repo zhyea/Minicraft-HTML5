@@ -55,4 +55,15 @@ public class Furniture extends Entity {
 	public void take(Player player) {
 		shouldTake = player;
 	}
+
+	/** Reconstruct a concrete Furniture subclass from its name (used by save load). */
+	public static Furniture createByName(String name) {
+		if ("箱子".equals(name)) return new Chest();
+		if ("工作台".equals(name)) return new Workbench();
+		if ("铁砧".equals(name)) return new Anvil();
+		if ("熔炉".equals(name)) return new Furnace();
+		if ("烤箱".equals(name)) return new Oven();
+		if ("灯笼".equals(name)) return new Lantern();
+		return null;
+	}
 }
