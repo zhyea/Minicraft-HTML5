@@ -1,0 +1,174 @@
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mD:/MyDevelop/JSDevelop/Minicraft-HTML5/ts-port[39m
+
+ [32m✓[39m src/engine/__tests__/inputhandler.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m src/engine/__tests__/screen.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 4[2mms[22m[39m
+ [32m✓[39m src/engine/__tests__/color.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m src/engine/__tests__/spritesheet.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 4[2mms[22m[39m
+ [32m✓[39m src/game/__tests__/crafting.test.ts [2m ([22m[2m9 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+ [32m✓[39m src/game/__tests__/items.test.ts [2m ([22m[2m17 tests[22m[2m)[22m[90m 110[2mms[22m[39m
+ [32m✓[39m src/game/__tests__/furniture.test.ts [2m ([22m[2m6 tests[22m[2m)[22m[90m 40[2mms[22m[39m
+ [32m✓[39m src/game/__tests__/mob.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 64[2mms[22m[39m
+[90mstderr[2m | src/ui/__tests__/menus.test.ts[2m > [22m[2mInventoryMenu[2m > [22m[2mrenders the player items with their counts[22m[39m
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\browser\not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\nodes\HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\generated\HTMLCanvasElement.js:131:58)
+    at Module.renderItemIcon (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\itemIcon.ts:27:18)
+    at draw (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\ItemIcon.vue:15:24)
+    at D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3116:40
+    at callWithErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:200:19)
+    at callWithAsyncErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:207:17)
+    at hook.__weh.hook.__weh (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3096:19)
+    at flushPostFlushCbs (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:382:28) [90mundefined[39m
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\browser\not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\nodes\HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\generated\HTMLCanvasElement.js:131:58)
+    at Module.renderItemIcon (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\itemIcon.ts:27:18)
+    at draw (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\ItemIcon.vue:15:24)
+    at D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3116:40
+    at callWithErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:200:19)
+    at callWithAsyncErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:207:17)
+    at hook.__weh.hook.__weh (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3096:19)
+    at flushPostFlushCbs (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:382:28) [90mundefined[39m
+
+[90mstderr[2m | src/ui/__tests__/menus.test.ts[2m > [22m[2mCraftingMenu[2m > [22m[2mlists the station recipes and disables uncraftable ones[22m[39m
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\browser\not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\nodes\HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\generated\HTMLCanvasElement.js:131:58)
+    at Module.renderItemIcon (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\itemIcon.ts:27:18)
+    at draw (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\ItemIcon.vue:15:24)
+    at D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3116:40
+    at callWithErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:200:19)
+    at callWithAsyncErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:207:17)
+    at hook.__weh.hook.__weh (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3096:19)
+    at flushPostFlushCbs (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:382:28) [90mundefined[39m
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\browser\not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\nodes\HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\generated\HTMLCanvasElement.js:131:58)
+    at Module.renderItemIcon (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\itemIcon.ts:27:18)
+    at draw (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\ItemIcon.vue:15:24)
+    at D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3116:40
+    at callWithErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:200:19)
+    at callWithAsyncErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:207:17)
+    at hook.__weh.hook.__weh (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3096:19)
+    at flushPostFlushCbs (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:382:28) [90mundefined[39m
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\browser\not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\nodes\HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\generated\HTMLCanvasElement.js:131:58)
+    at Module.renderItemIcon (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\itemIcon.ts:27:18)
+    at draw (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\ItemIcon.vue:15:24)
+    at D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3116:40
+    at callWithErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:200:19)
+    at callWithAsyncErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:207:17)
+    at hook.__weh.hook.__weh (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3096:19)
+    at flushPostFlushCbs (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:382:28) [90mundefined[39m
+
+[90mstderr[2m | src/ui/__tests__/menus.test.ts[2m > [22m[2mCraftingMenu[2m > [22m[2mcrafting deducts the cost and adds the result[22m[39m
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\browser\not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\nodes\HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\generated\HTMLCanvasElement.js:131:58)
+    at Module.renderItemIcon (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\itemIcon.ts:27:18)
+    at draw (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\ItemIcon.vue:15:24)
+    at D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3116:40
+    at callWithErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:200:19)
+    at callWithAsyncErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:207:17)
+    at hook.__weh.hook.__weh (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3096:19)
+    at flushPostFlushCbs (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:382:28) [90mundefined[39m
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\browser\not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\nodes\HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\generated\HTMLCanvasElement.js:131:58)
+    at Module.renderItemIcon (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\itemIcon.ts:27:18)
+    at draw (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\ItemIcon.vue:15:24)
+    at D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3116:40
+    at callWithErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:200:19)
+    at callWithAsyncErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:207:17)
+    at hook.__weh.hook.__weh (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3096:19)
+    at flushPostFlushCbs (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:382:28) [90mundefined[39m
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\browser\not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\nodes\HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\generated\HTMLCanvasElement.js:131:58)
+    at Module.renderItemIcon (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\itemIcon.ts:27:18)
+    at draw (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\ItemIcon.vue:15:24)
+    at D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3116:40
+    at callWithErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:200:19)
+    at callWithAsyncErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:207:17)
+    at hook.__weh.hook.__weh (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3096:19)
+    at flushPostFlushCbs (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:382:28) [90mundefined[39m
+
+[90mstderr[2m | src/ui/__tests__/menus.test.ts[2m > [22m[2mContainerMenu[2m > [22m[2mmoves an item from the chest into the player inventory[22m[39m
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\browser\not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\nodes\HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\generated\HTMLCanvasElement.js:131:58)
+    at Module.renderItemIcon (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\itemIcon.ts:27:18)
+    at draw (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\ItemIcon.vue:15:24)
+    at D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3116:40
+    at callWithErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:200:19)
+    at callWithAsyncErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:207:17)
+    at hook.__weh.hook.__weh (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3096:19)
+    at flushPostFlushCbs (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:382:28) [90mundefined[39m
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\browser\not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\nodes\HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\jsdom\lib\jsdom\living\generated\HTMLCanvasElement.js:131:58)
+    at Module.renderItemIcon (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\itemIcon.ts:27:18)
+    at draw (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\src\ui\ItemIcon.vue:15:24)
+    at D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3116:40
+    at callWithErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:200:19)
+    at callWithAsyncErrorHandling (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:207:17)
+    at hook.__weh.hook.__weh (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:3096:19)
+    at flushPostFlushCbs (D:\MyDevelop\JSDevelop\Minicraft-HTML5\ts-port\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:382:28) [90mundefined[39m
+
+ [33m❯[39m src/ui/__tests__/menus.test.ts [2m ([22m[2m7 tests[22m [2m|[22m [31m2 failed[39m[2m)[22m[90m 41[2mms[22m[39m
+[31m   [33m❯[31m src/ui/__tests__/menus.test.ts[2m > [22mCraftingMenu[2m > [22mlists the station recipes and disables uncraftable ones[39m
+[31m     → expected +0 to be 1 // Object.is equality[39m
+[31m   [33m❯[31m src/ui/__tests__/menus.test.ts[2m > [22mCraftingMenu[2m > [22mcrafting deducts the cost and adds the result[39m
+[31m     → Cannot call attributes on an empty DOMWrapper.[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 2 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/ui/__tests__/menus.test.ts[2m > [22mCraftingMenu[2m > [22mlists the station recipes and disables uncraftable ones
+[31m[1mAssertionError[22m: expected +0 to be 1 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+[36m [2m❯[22m src/ui/__tests__/menus.test.ts:[2m68:46[22m[39m
+    [90m 66| [39m    [35mconst[39m wrapper [33m=[39m [34mtrack[39m([34mmount[39m([33mCraftingMenu[39m[33m,[39m { props[33m:[39m { recipes[33m:[39m [gem…
+    [90m 67| [39m
+    [90m 68| [39m    [34mexpect[39m(wrapper[33m.[39m[34mfindAll[39m([32m'button'[39m)[33m.[39mlength)[33m.[39m[34mtoBe[39m([34m1[39m)[33m;[39m
+    [90m   | [39m                                             [31m^[39m
+    [90m 69| [39m    [34mexpect[39m(wrapper[33m.[39m[34mtext[39m())[33m.[39m[34mtoContain[39m([32m'宝石剑'[39m)[33m;[39m
+    [90m 70| [39m    [90m// canCraft false -> the craft button is disabled.[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/ui/__tests__/menus.test.ts[2m > [22mCraftingMenu[2m > [22mcrafting deducts the cost and adds the result
+[31m[1mError[22m: Cannot call attributes on an empty DOMWrapper.[39m
+[36m [2m❯[22m Object.get node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:[2m1482:27[22m[39m
+    [90m1480| [39m                    return () => false;
+    [90m1481| [39m                default:
+    [90m1482| [39m                    throw new Error(`Cannot call ${String(prop)} on an…
+    [90m   | [39m                          [31m^[39m
+    [90m1483| [39m            }
+    [90m1484| [39m        }
+[90m [2m❯[22m src/ui/__tests__/menus.test.ts:[2m80:33[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m8 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m52 passed[39m[22m[90m (54)[39m
+[2m   Start at [22m 16:18:09
+[2m   Duration [22m 1.53s[2m (transform 1.47s, setup 2ms, collect 3.71s, tests 276ms, environment 639ms, prepare 1.12s)[22m
+

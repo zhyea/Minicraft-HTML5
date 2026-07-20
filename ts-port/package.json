@@ -1,0 +1,25 @@
+{
+  "name": "minicraft-html5-ts-port",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Phase-0 vertical slice: Vite + Vue 3 + TypeScript port of Minicraft (Canvas pixel rendering + TS game loop + Vue menu overlay).",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "@vue/test-utils": "^2.4.6",
+    "jsdom": "^24.1.0",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.8",
+    "vitest": "^1.6.0"
+  }
+}
