@@ -18,6 +18,7 @@ import type { Item } from '../item/Item';
 import { ResourceItem } from '../item/ResourceItem';
 import type { Resource } from '../item/resource/Resource';
 import type { Inventory } from '../entity/Inventory';
+import { Sound } from '../audio/Sound';
 
 export abstract class Recipe {
   public costs: Item[] = [];
@@ -51,8 +52,20 @@ export abstract class Recipe {
     this.canCraft = true;
   }
 
-  /** Yields the recipe output into the inventory. Mirrors Java craft(Player). */
-  public abstract craft(inventory: Inventory): void;
+  /**
+   * Yields the recipe output into the inventory + plays the 'craft' chime.
+   * Mirrors Java craft(Player); the single wiring point for the craft SFX so
+   * every concrete recipe (resource / tool / furniture) triggers it exactly
+   * once on a successful craft. `Sound.play` is a silent no-op where Web Audio
+   * is unavailable (tests / headless), so this never affects logic or counts.
+   */
+  public craft(inventory: Inventory): void {
+    this.produce(inventory);
+    Sound.play('craft');
+  }
+
+  /** Subclass hook that actually yields the output item(s). */
+  protected abstract produce(inventory: Inventory): void;
 
   /**
    * Removes the input costs from the inventory. In Java this is a *separate*

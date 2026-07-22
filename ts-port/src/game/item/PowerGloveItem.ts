@@ -33,6 +33,10 @@ export class PowerGloveItem extends Item {
     return '力量手套';
   }
 
+  public getDescription(): string {
+    return '手持它对准已放下的家具按攻击键，即可收回背包。';
+  }
+
   public interact(_player: Player, entity: Entity, _attackDir: number): boolean {
     const f = entity as unknown as { take?: (p: Player) => void };
     if (typeof f.take === 'function') {

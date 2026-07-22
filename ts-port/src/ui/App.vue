@@ -28,6 +28,7 @@ import {
   openContainer,
   closeMenu,
   returnToTitle,
+  equipItem,
 } from '../game/state';
 import type { CraftStation } from '../game/state';
 import { Crafting } from '../game/crafting/Crafting';
@@ -45,9 +46,21 @@ import DeadMenu from './menus/DeadMenu.vue';
 import WonMenu from './menus/WonMenu.vue';
 import HelpMenu from './menus/HelpMenu.vue';
 import AboutMenu from './menus/AboutMenu.vue';
+import TransitionMenu from './menus/TransitionMenu.vue';
 
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 let game: Game | null = null;
+
+/** Window focus state, used for the "点击聚焦！" nagger (mirrors Java's
+ *  renderFocusNagger: shown only while the canvas lacks focus during play). */
+const hasFocus = ref(typeof document !== 'undefined' ? document.hasFocus() : true);
+
+function onWindowFocus(): void {
+  hasFocus.value = true;
+}
+function onWindowBlur(): void {
+  hasFocus.value = false;
+}
 
 /** Map furniture use() to the matching Vue menu (Sprint-5 wiring). */
 function installFurnitureHandler(): void {
@@ -103,10 +116,14 @@ onMounted(() => {
   if (canvasRef.value) game.attachRenderer(canvasRef.value);
   setActiveGame(game);
   window.addEventListener('beforeunload', onBeforeUnload);
+  window.addEventListener('focus', onWindowFocus);
+  window.addEventListener('blur', onWindowBlur);
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', onBeforeUnload);
+  window.removeEventListener('focus', onWindowFocus);
+  window.removeEventListener('blur', onWindowBlur);
   game?.dispose();
   setActiveGame(null);
 });
@@ -128,6 +145,8 @@ function recipesFor(station: CraftStation | undefined): ReturnType<typeof Crafti
       return Crafting.furnaceRecipes;
     case 'oven':
       return Crafting.ovenRecipes;
+    case 'portable':
+      return Crafting.workbenchRecipes;
     default:
       return [];
   }
@@ -146,11 +165,14 @@ const containerInv = computed<Inventory>(() => gameState.menuContext.container ?
       <TitleMenu @start="onStart" @continue="onContinue" @help="openHelp" @about="openAbout" />
     </div>
 
-    <div class="overlay" v-else-if="gameState.currentMenu !== 'none'">
+    <div class="overlay" v-else-if="gameState.currentMenu !== 'none' && gameState.currentMenu !== 'transition'">
       <InventoryMenu
         v-if="gameState.currentMenu === 'inventory'"
         :items="playerItems"
+        @select="(item) => { equipItem(item); game?.input.attack.absorb(); closeMenu(); }"
         @close="closeMenu"
+        @help="openHelp"
+        @craft="() => openCrafting('portable')"
       />
       <CraftingMenu
         v-else-if="gameState.currentMenu === 'crafting'"
@@ -181,6 +203,18 @@ const containerInv = computed<Inventory>(() => gameState.menuContext.container ?
       <HelpMenu v-else-if="gameState.currentMenu === 'help'" @close="closeMenu" />
       <AboutMenu v-else-if="gameState.currentMenu === 'about'" @close="closeMenu" />
     </div>
+
+    <!-- Dimension-change transition: transparent overlay so the frozen world
+         stays visible behind the centered caption. -->
+    <TransitionMenu
+      v-if="gameState.currentMenu === 'transition'"
+      :label="gameState.menuContext.transitionLabel ?? ''"
+      @done="() => game?.completeLevelChange(gameState.menuContext.levelChangeDir ?? 0)"
+    />
+
+    <!-- Focus nagger (mirrors Java renderFocusNagger): shown only during live
+         play when the window has lost focus. -->
+    <div class="focus-nagger" v-if="!hasFocus && gameState.currentMenu === 'none'">点击聚焦！</div>
   </div>
 </template>
 
@@ -210,5 +244,27 @@ canvas#game {
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.6);
+}
+
+.focus-nagger {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-family: monospace;
+  font-size: 20px;
+  letter-spacing: 2px;
+  text-shadow: 0 0 4px #000, 2px 2px 0 #000;
+  pointer-events: none;
+  /* Mirrors Java renderFocusNagger's tickCount/20 parity colour swap
+     (~20 ticks @60fps ≈ 0.66s full cycle). step-end holds each
+     colour until the midpoint, giving a clean on/off blink. */
+  animation: focusBlink 0.66s step-end infinite;
+}
+
+@keyframes focusBlink {
+  0% { color: #fff; }
+  50% { color: #f4d35e; }
 }
 </style>

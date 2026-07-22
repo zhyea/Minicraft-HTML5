@@ -18,6 +18,7 @@ import { Player } from '../entity/Player';
 import { Chest } from '../entity/Chest';
 import { Workbench } from '../entity/Workbench';
 import { Zombie } from '../entity/Zombie';
+import { ItemEntity } from '../entity/ItemEntity';
 import { SaveStore } from '../save/SaveStore';
 import { gameState } from '../state';
 
@@ -178,6 +179,8 @@ describe('F — entity variety round-trip (furniture + mob tiers)', () => {
     chest.x = 200;
     chest.y = 300;
     chest.inventory.add(new ResourceItem(Resource.wood, 4));
+    chest.pushTime = 7; // P2-7
+    chest.pushDir = 2; // P2-7
     surface.add(chest);
 
     const bench = new Workbench();
@@ -189,6 +192,8 @@ describe('F — entity variety round-trip (furniture + mob tiers)', () => {
     z2.x = 600;
     z2.y = 700;
     z2.health = 30;
+    z2.xr = 6; // P2-8 (default is 4, so this is observable)
+    z2.yr = 5; // P2-8 (default is 3)
     surface.add(z2);
 
     g1.saveGame();
@@ -202,6 +207,8 @@ describe('F — entity variety round-trip (furniture + mob tiers)', () => {
     expect(chests[0].x).toBe(200);
     expect(chests[0].y).toBe(300);
     expect(chests[0].inventory.count(new ResourceItem(Resource.wood))).toBe(4);
+    expect(chests[0].pushTime).toBe(7); // P2-7 restored
+    expect(chests[0].pushDir).toBe(2); // P2-7 restored
 
     expect(surface2.entities.filter((e) => e instanceof Workbench).length).toBe(1);
 
@@ -211,5 +218,35 @@ describe('F — entity variety round-trip (furniture + mob tiers)', () => {
     expect(z2loaded!.health).toBe(30);
     expect(z2loaded!.x).toBe(600);
     expect(z2loaded!.y).toBe(700);
+  });
+});
+
+describe('G — ItemEntity (ground loot) round-trip', () => {
+  it('restores a dropped resource with its position and remaining lifetime', () => {
+    const g1 = new Game();
+    g1.startNewGame();
+    const surface = g1.levels[3]!;
+
+    const drop = new ItemEntity(new ResourceItem(Resource.stone, 3), 321, 654);
+    drop.lifeTime = 420;
+    drop.time = 123;
+    drop.hurtTime = 4;
+    surface.add(drop);
+
+    g1.saveGame();
+
+    const g2 = new Game();
+    g2.loadGame();
+    const surface2 = g2.levels[3]!;
+
+    const drops = surface2.entities.filter((e) => e instanceof ItemEntity) as ItemEntity[];
+    const loaded = drops.find((d) => d.x === 321 && d.y === 654);
+    expect(loaded).toBeTruthy();
+    expect(loaded!.item).toBeInstanceOf(ResourceItem);
+    expect((loaded!.item as ResourceItem).resource).toBe(Resource.stone);
+    expect((loaded!.item as ResourceItem).count).toBe(3);
+    expect(loaded!.lifeTime).toBe(420);
+    expect(loaded!.time).toBe(123);
+    expect(loaded!.hurtTime).toBe(4);
   });
 });

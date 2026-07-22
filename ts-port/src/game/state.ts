@@ -16,6 +16,7 @@
 import { reactive } from 'vue';
 import type { Inventory } from './entity/Inventory';
 import type { Game } from './Game';
+import type { Item } from './item/Item';
 
 export type MenuName =
   | 'title'
@@ -26,10 +27,11 @@ export type MenuName =
   | 'dead'
   | 'won'
   | 'help'
-  | 'about';
+  | 'about'
+  | 'transition';
 
 /** Crafting stations, mirroring the four recipe groups in Crafting.java. */
-export type CraftStation = 'workbench' | 'anvil' | 'furnace' | 'oven';
+export type CraftStation = 'workbench' | 'anvil' | 'furnace' | 'oven' | 'portable';
 
 export interface MenuContext {
   /** Active crafting station, when `currentMenu === 'crafting'`. */
@@ -38,6 +40,10 @@ export interface MenuContext {
   container?: Inventory;
   /** Title shown for the container (Chest.name in Chinese: 箱子). */
   containerTitle?: string;
+  /** Pending level-change direction, when `currentMenu === 'transition'`. */
+  levelChangeDir?: number;
+  /** Label shown on the transition overlay (e.g. "进入洞穴…" / "进入天空…"). */
+  transitionLabel?: string;
 }
 
 export interface GameState {
@@ -49,6 +55,14 @@ export interface GameState {
   started: boolean;
   /** Per-menu data consumed by the mounted overlay component. */
   menuContext: MenuContext;
+  /**
+   * Stack of overlay names so closing a sub-menu returns to its *exact* parent
+   * (e.g. live game -> inventory -> help -> back to inventory), rather than a
+   * single hardcoded target. The bottom is implicitly the root ('none' live
+   * game, or 'title'); each enterMenu() pushes the current menu, closeMenu()
+   * pops it. Prevents the help-from-inventory case from getting stranded.
+   */
+  menuStack: MenuName[];
 }
 
 export const gameState = reactive<GameState>({
@@ -56,6 +70,7 @@ export const gameState = reactive<GameState>({
   selectedIndex: 0,
   started: false,
   menuContext: {},
+  menuStack: [],
 });
 
 /**
@@ -73,6 +88,17 @@ export function getActiveGame(): Game | null {
   return activeGame;
 }
 
+/**
+ * Equip an item as the player's currently-held item (the `activeItem` the
+ * attack/use pipeline acts on). Called when the player picks an entry in the
+ * InventoryMenu. Without this the inventory is browse-only and the player can
+ * never actually hold a tool/seed/furniture — which silently breaks mining,
+ * tilling, planting and (via workbench placement) crafting.
+ */
+export function equipItem(item: Item): void {
+  if (activeGame?.player) activeGame.player.activeItem = item;
+}
+
 /** Return to the title screen (used by Dead/Won -> title paths). */
 export function showTitle(): void {
   activeGame?.stop();
@@ -80,6 +106,7 @@ export function showTitle(): void {
   gameState.selectedIndex = 0;
   gameState.started = false;
   gameState.menuContext = {};
+  gameState.menuStack = [];
 }
 
 /** Player committed to starting a game: hide the menu overlay, mark started. */
@@ -88,6 +115,7 @@ export function startSession(): void {
   gameState.currentMenu = 'none';
   gameState.selectedIndex = 0;
   gameState.menuContext = {};
+  gameState.menuStack = [];
 }
 
 /** Move the menu cursor. */
@@ -97,58 +125,78 @@ export function setSelectedIndex(i: number): void {
 
 // ---- In-game menu openers (mirror the Java setMenu(new XMenu(...)) calls) ----
 
-export function openInventory(): void {
-  gameState.currentMenu = 'inventory';
+/**
+ * Enter a sub-menu, pushing the *current* menu onto the stack so closeMenu()
+ * can return to exactly where we came from. This is what lets help opened from
+ * the inventory close back to the inventory (not to the live game).
+ */
+function enterMenu(name: MenuName): void {
+  gameState.menuStack.push(gameState.currentMenu);
+  gameState.currentMenu = name;
   gameState.selectedIndex = 0;
   gameState.menuContext = {};
 }
 
+export function openInventory(): void {
+  enterMenu('inventory');
+}
+
 export function openCrafting(station: CraftStation): void {
-  gameState.currentMenu = 'crafting';
-  gameState.selectedIndex = 0;
+  enterMenu('crafting');
   gameState.menuContext = { station };
 }
 
 export function openContainer(title: string, container: Inventory): void {
-  gameState.currentMenu = 'container';
-  gameState.selectedIndex = 0;
+  enterMenu('container');
   gameState.menuContext = { container, containerTitle: title };
 }
 
 export function openDead(): void {
-  gameState.currentMenu = 'dead';
-  gameState.selectedIndex = 0;
-  gameState.menuContext = {};
+  enterMenu('dead');
 }
 
 export function openWon(): void {
-  gameState.currentMenu = 'won';
-  gameState.selectedIndex = 0;
-  gameState.menuContext = {};
+  enterMenu('won');
 }
 
+/** Open the 玩法说明 panel. The return target is whatever menu is showing now
+ *  (title / live game / inventory / ...), captured by enterMenu(). */
 export function openHelp(): void {
-  gameState.currentMenu = 'help';
-  gameState.selectedIndex = 0;
-  gameState.menuContext = {};
+  enterMenu('help');
 }
 
 export function openAbout(): void {
-  gameState.currentMenu = 'about';
-  gameState.selectedIndex = 0;
-  gameState.menuContext = {};
+  enterMenu('about');
 }
 
 /**
- * Close the active overlay back to the live game. Absorbs the pending menu-key
- * press so Game.tick() (which opens the inventory on `input.menu.clicked`) does
- * not immediately reopen a menu on the very next frame after the user closed it.
+ * Open the dimension-change transition overlay (mirrors Java's
+ * LevelTransitionMenu). `dir` is the pending level-change direction (negative
+ * = down to cave, positive = up to sky); `label` is the centered caption. The
+ * overlay pauses the world (isMenuOpen() is true) and calls back into the game
+ * core via its `done` event to perform the actual swap.
+ */
+export function openTransition(dir: number, label: string): void {
+  enterMenu('transition');
+  gameState.menuContext = { levelChangeDir: dir, transitionLabel: label };
+}
+
+/**
+ * Close the active overlay, returning to the menu directly beneath it on the
+ * stack. Absorbs the pending menu-key press only when the target is the live
+ * game ('none'), so Game.tick() (which opens the inventory on
+ * `input.menu.clicked`) does not immediately reopen a menu on the very next
+ * frame after the user closed it. For any other target the loop is paused (or
+ * absent), so no absorption is needed.
  */
 export function closeMenu(): void {
-  gameState.currentMenu = 'none';
+  const target = gameState.menuStack.pop() ?? 'none';
+  gameState.currentMenu = target;
   gameState.selectedIndex = 0;
   gameState.menuContext = {};
-  activeGame?.input.menu.absorb();
+  if (target === 'none') {
+    activeGame?.input.menu.absorb();
+  }
 }
 
 /** Dead/Won confirmation -> back to title screen. */

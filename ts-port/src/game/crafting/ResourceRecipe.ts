@@ -17,7 +17,7 @@ export class ResourceRecipe extends Recipe {
     this.resource = resource;
   }
 
-  public craft(inventory: Inventory): void {
+  protected produce(inventory: Inventory): void {
     inventory.add(0, new ResourceItem(this.resource, 1));
   }
 }

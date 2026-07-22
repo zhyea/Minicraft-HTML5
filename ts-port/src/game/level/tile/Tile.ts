@@ -40,6 +40,8 @@ export class Tile {
   public static cloud: Tile = null as unknown as Tile;
   public static hardRock: Tile = null as unknown as Tile;
   public static ironOre: Tile = null as unknown as Tile;
+  public static goldOre: Tile = null as unknown as Tile;
+  public static gemOre: Tile = null as unknown as Tile;
   public static cloudCactus: Tile = null as unknown as Tile;
   // Sprint-6 ported tiles (mirrors GWT Tile.java statics hole..wheat).
   public static hole: Tile = null as unknown as Tile;

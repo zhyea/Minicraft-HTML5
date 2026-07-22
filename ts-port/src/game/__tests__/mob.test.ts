@@ -46,7 +46,7 @@ describe('Slime contact damage', () => {
     expect(player.health).toBeLessThan(hpBefore);
   });
 
-  it('awards score to the player on death (mirrors Zombie; no ItemEntity drop)', () => {
+  it('awards score to the player on death (also drops loot ItemEntities, score still asserted)', () => {
     const game = new Game();
     const level = new Level(64, 64, 0, null);
     clearTile(level, 6, 6);

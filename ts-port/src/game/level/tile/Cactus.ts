@@ -1,4 +1,4 @@
-/** Port of level/tile/CactusTile.java. Item drops are stubbed for the slice. */
+/** Port of level/tile/CactusTile.java. */
 import { Color } from '../../../engine/Color';
 import type { Screen } from '../../../engine/Screen';
 import { Tile } from './Tile';
@@ -7,6 +7,9 @@ import type { Entity } from '../../entity/Entity';
 import type { Mob } from '../../entity/Mob';
 import { SmashParticle } from '../../entity/particle/SmashParticle';
 import { TextParticle } from '../../entity/particle/TextParticle';
+import { ItemEntity } from '../../entity/ItemEntity';
+import { ResourceItem } from '../../item/ResourceItem';
+import { Resource } from '../../item/resource/Resource';
 
 export class CactusTile extends Tile {
   constructor(id: number) {
@@ -41,8 +44,11 @@ export class CactusTile extends Tile {
     level.add(new SmashParticle(x * 16 + 8, y * 16 + 8));
     level.add(new TextParticle(`${dmg}`, x * 16 + 8, y * 16 + 8, Color.get(-1, 500, 500, 500)));
     if (damage >= 10) {
-      // GWT drops cactusFlower ResourceItems here; drops are stubbed in the
-      // slice (no ItemEntity port). The tile reverts to sand.
+      // Faithful: drop a cactusFlower ResourceItem (1..2), then revert to sand.
+      const count = Math.floor(Math.random() * 2) + 1;
+      for (let i = 0; i < count; i++) {
+        level.add(new ItemEntity(new ResourceItem(Resource.cactusFlower, 1), x * 16 + Math.floor(Math.random() * 10) + 3, y * 16 + Math.floor(Math.random() * 10) + 3));
+      }
       level.setTile(x, y, Tile.sand, 0);
     } else {
       level.setData(x, y, damage);

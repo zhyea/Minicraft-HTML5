@@ -3,7 +3,11 @@
     "target": "ES2020",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -14,8 +18,15 @@
     "isolatedModules": true,
     "useDefineForClassFields": false,
     "noEmit": true,
+    "allowSyntheticDefaultImports": true,
     "types": []
   },
-  "include": ["src"],
-  "exclude": ["src/**/*.test.ts", "node_modules", "dist"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "src/**/*.test.ts",
+    "node_modules",
+    "dist"
+  ]
 }

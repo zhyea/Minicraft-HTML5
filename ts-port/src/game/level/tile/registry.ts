@@ -22,6 +22,7 @@ import { InfiniteFallTile } from './InfiniteFall';
 import { CloudTile } from './Cloud';
 import { HardRockTile } from './HardRock';
 import { OreTile } from './Ore';
+import { Resource } from '../../item/resource/Resource';
 import { CloudCactusTile } from './CloudCactus';
 import { HoleTile } from './Hole';
 import { SaplingTile } from './Sapling';
@@ -53,14 +54,24 @@ export function installTiles(): void {
   Tile.infiniteFall = new InfiniteFallTile(16);
   Tile.cloud = new CloudTile(17);
   Tile.hardRock = new HardRockTile(18);
-  // TODO: ironOre tint is a hardcoded stub (0x333333); goldOre/gemOre not yet ported — see STAGE1-WRAPUP.
-  Tile.ironOre = new OreTile(19, Color_get_ore());
   Tile.cloudCactus = new CloudCactusTile(22);
 }
 
-// Representative iron-ore tint (the GWT source derives this from Resource.ironOre.color).
-function Color_get_ore(): number {
-  // Temporary placeholder tint — only the low 24 bits are used by OreTile.
-  // 0xRRGGBB-ish base; only the low 24 bits are used by OreTile.
-  return 0x333333;
+/**
+ * Creates the three OreTile singletons. Kept separate from installTiles()
+ * because OreTile stores a reference to its dropped Resource (ironOre /
+ * goldOre / gem), and those Resource statics are only assigned by
+ * installResources() — which runs AFTER installTiles(). Calling this once,
+ * after installResources(), resolves the mutual tile<->resource dependency
+ * (PlantableResource needs Tile singletons; OreTile needs Resource singletons)
+ * that the GWT class-load order handles implicitly.
+ */
+let oreInstalled = false;
+
+export function installOreTiles(): void {
+  if (oreInstalled) return;
+  oreInstalled = true;
+  Tile.ironOre = new OreTile(19, Resource.ironOre);
+  Tile.goldOre = new OreTile(20, Resource.goldOre);
+  Tile.gemOre = new OreTile(21, Resource.gem);
 }

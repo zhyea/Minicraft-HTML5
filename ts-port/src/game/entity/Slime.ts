@@ -10,6 +10,9 @@ import type { Screen } from '../../engine/Screen';
 import { Mob } from './Mob';
 import type { Entity } from './Entity';
 import { Player } from './Player';
+import { ItemEntity } from './ItemEntity';
+import { ResourceItem } from '../item/ResourceItem';
+import { Resource } from '../item/resource/Resource';
 
 export class Slime extends Mob {
   private xa = 0;
@@ -92,8 +95,18 @@ export class Slime extends Mob {
 
   protected die(): void {
     super.die();
-    // Java drops 1-2 slime ItemEntities here; ts-port has no ItemEntity, so we
-    // mirror Zombie.die() and only award score (deviation, see Sprint 4 report).
+    // Faithful port of Java Slime.die(): drop 1-2 slime ItemEntities, then
+    // award score. (The prior slice build omitted the drops — "no ItemEntity".)
+    const count = Math.floor(Math.random() * 2) + 1;
+    for (let i = 0; i < count; i++) {
+      this.level.add(
+        new ItemEntity(
+          new ResourceItem(Resource.slime),
+          this.x + Math.floor(Math.random() * 11) - 5,
+          this.y + Math.floor(Math.random() * 11) - 5,
+        ),
+      );
+    }
     if (this.level.player != null) {
       this.level.player.score += 25 * this.lvl;
     }

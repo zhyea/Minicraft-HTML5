@@ -1,8 +1,18 @@
-/** Port of level/tile/HardRockTile.java. Item drops are stubbed for the slice. */
+/** Port of level/tile/HardRockTile.java — only a gem-level pickaxe (level 4) mines it. */
 import { Color } from '../../../engine/Color';
 import type { Screen } from '../../../engine/Screen';
 import { Tile } from './Tile';
 import type { Level } from '../Level';
+import type { Mob } from '../../entity/Mob';
+import type { Player } from '../../entity/Player';
+import type { Item } from '../../item/Item';
+import { ItemEntity } from '../../entity/ItemEntity';
+import { ResourceItem } from '../../item/ResourceItem';
+import { Resource } from '../../item/resource/Resource';
+import { ToolItem } from '../../item/ToolItem';
+import { ToolType } from '../../item/ToolType';
+import { SmashParticle } from '../../entity/particle/SmashParticle';
+import { TextParticle } from '../../entity/particle/TextParticle';
 
 export class HardRockTile extends Tile {
   constructor(id: number) {
@@ -56,5 +66,46 @@ export class HardRockTile extends Tile {
   public tick(level: Level, xt: number, yt: number): void {
     const damage = level.getData(xt, yt);
     if (damage > 0) level.setData(xt, yt, damage - 1);
+  }
+
+  public hurt(level: Level, x: number, y: number, _source: Mob, dmg: number, _attackDir: number): void {
+    this.hurtRock(level, x, y, dmg);
+  }
+
+  public interact(level: Level, xt: number, yt: number, player: Player, item: Item, _attackDir: number): boolean {
+    if (item instanceof ToolItem) {
+      const tool = item as ToolItem;
+      if (tool.type === ToolType.pickaxe && tool.level === 4) {
+        if (player.payStamina(4 - tool.level)) {
+          this.hurtRock(level, xt, yt, Math.floor(Math.random() * 10) + tool.level * 5 + 10);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /** Faithful port of HardRockTile.hurt(level, x, y, dmg): threshold 200 → stone + coal, then dirt. */
+  private hurtRock(level: Level, x: number, y: number, dmg: number): void {
+    const damage = level.getData(x, y) + dmg;
+    level.add(new SmashParticle(x * 16 + 8, y * 16 + 8));
+    level.add(new TextParticle(`${dmg}`, x * 16 + 8, y * 16 + 8, Color.get(-1, 500, 500, 500)));
+    if (damage >= 200) {
+      const count = Math.floor(Math.random() * 4) + 1; // 1..4 stone
+      for (let i = 0; i < count; i++) {
+        level.add(
+          new ItemEntity(new ResourceItem(Resource.stone, 1), x * 16 + Math.floor(Math.random() * 10) + 3, y * 16 + Math.floor(Math.random() * 10) + 3)
+        );
+      }
+      const coalCount = Math.floor(Math.random() * 2); // 0..1 coal
+      for (let i = 0; i < coalCount; i++) {
+        level.add(
+          new ItemEntity(new ResourceItem(Resource.coal, 1), x * 16 + Math.floor(Math.random() * 10) + 3, y * 16 + Math.floor(Math.random() * 10) + 3)
+        );
+      }
+      level.setTile(x, y, Tile.dirt, 0);
+    } else {
+      level.setData(x, y, damage);
+    }
   }
 }

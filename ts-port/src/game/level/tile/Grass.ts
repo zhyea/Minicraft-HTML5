@@ -1,8 +1,16 @@
 /** Port of level/tile/GrassTile.java. */
 import { Color } from '../../../engine/Color';
+import { Sound } from '../../audio/Sound';
 import type { Screen } from '../../../engine/Screen';
 import { Tile } from './Tile';
 import type { Level } from '../Level';
+import type { Player } from '../../entity/Player';
+import type { Item } from '../../item/Item';
+import { ItemEntity } from '../../entity/ItemEntity';
+import { ResourceItem } from '../../item/ResourceItem';
+import { Resource } from '../../item/resource/Resource';
+import { ToolItem } from '../../item/ToolItem';
+import { ToolType } from '../../item/ToolType';
 
 export class GrassTile extends Tile {
   constructor(id: number) {
@@ -50,5 +58,37 @@ export class GrassTile extends Tile {
     if (level.getTile(xn, yn) === Tile.dirt) {
       level.setTile(xn, yn, Tile.grass, 0);
     }
+  }
+
+  public interact(level: Level, xt: number, yt: number, player: Player, item: Item, _attackDir: number): boolean {
+    if (item instanceof ToolItem) {
+      const tool = item as ToolItem;
+      if (tool.type === ToolType.shovel) {
+        if (player.payStamina(4 - tool.level)) {
+          level.setTile(xt, yt, Tile.dirt, 0);
+          Sound.play('monsterHurt'); // Java GrassTile.java:72
+          if (Math.floor(Math.random() * 5) === 0) {
+            level.add(
+              new ItemEntity(new ResourceItem(Resource.seeds, 1), xt * 16 + Math.floor(Math.random() * 10) + 3, yt * 16 + Math.floor(Math.random() * 10) + 3)
+            );
+          }
+          return true;
+        }
+      }
+      if (tool.type === ToolType.hoe) {
+        if (player.payStamina(4 - tool.level)) {
+          Sound.play('monsterHurt'); // Java GrassTile.java:81
+          if (Math.floor(Math.random() * 5) === 0) {
+            level.add(
+              new ItemEntity(new ResourceItem(Resource.seeds, 1), xt * 16 + Math.floor(Math.random() * 10) + 3, yt * 16 + Math.floor(Math.random() * 10) + 3)
+            );
+            return true;
+          }
+          level.setTile(xt, yt, Tile.farmland, 0);
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }

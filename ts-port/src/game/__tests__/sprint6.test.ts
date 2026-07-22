@@ -5,6 +5,7 @@ import { installRecipes } from '../crafting/Crafting';
 import { Game } from '../Game';
 import { Level } from '../level/Level';
 import { Tile } from '../level/tile/Tile';
+import { WheatTile } from '../level/tile/Wheat';
 import { Resource } from '../item/resource/Resource';
 import { Player } from '../entity/Player';
 import { AirWizard } from '../entity/AirWizard';
@@ -89,6 +90,22 @@ describe('D2 — previously-missing tiles ported, placeholders resolved', () => 
     const ok = Resource.seeds.interactOn(Tile.farmland, level, 5, 5, null as unknown as Player, 0);
     expect(ok).toBe(true);
     expect(level.getTile(5, 5)).toBe(Tile.wheat);
+  });
+
+  it('wheat grows through visible stages and caps at ripe (age 50)', () => {
+    const level = new Level(64, 64, 0, null);
+    setTile(level, 5, 5, Tile.wheat);
+    expect(level.getData(5, 5)).toBe(0); // freshly planted sprout
+
+    // A modest number of ticks must NOT already reach ripe — growth is staged
+    // and observable, not an instant seed→ripe snap.
+    const wheat = level.getTile(5, 5) as WheatTile;
+    for (let i = 0; i < 40; i++) wheat.tick(level, 5, 5);
+    expect(level.getData(5, 5)).toBeLessThan(50);
+
+    // Given enough time it matures and stays capped at the ripe age.
+    for (let i = 0; i < 2000; i++) wheat.tick(level, 5, 5);
+    expect(level.getData(5, 5)).toBe(50);
   });
 
   it('cactusFlower plants cactusSapling on sand', () => {

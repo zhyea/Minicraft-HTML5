@@ -44,6 +44,10 @@ export class ResourceItem extends Item {
     return this.resource.name;
   }
 
+  public getDescription(): string {
+    return this.resource.description;
+  }
+
   public onTake(_itemEntity: unknown): void {}
 
   public interactOn(tile: Tile, level: Level, xt: number, yt: number, player: Player, attackDir: number): boolean {

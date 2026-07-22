@@ -12,9 +12,15 @@ const emit = defineEmits<{ (e: 'close'): void }>();
 const lines = [
   '使用方向键移动你的角色',
   '按 C 键攻击与交互',
+  '手持食物对地面按攻击键（C / 空格）可回血——需未满血且体力足够',
   '按 X 键打开背包并使用物品',
+  '背包内点「随身合成」可随时制作木级工具与第一张工作台',
   '在背包中选择物品来装备',
   '击败天空层的天空巫师即可获胜',
+  '游戏中按 H 可随时打开本说明',
+  '进度每约 30 秒自动存档，关闭页面也会保存',
+  '背包内按 Q 或点「保存」可随时手动存档',
+  '标题界面选择「读取存档」可接续上次进度',
 ];
 
 function onKey(e: KeyboardEvent): void {
@@ -35,7 +41,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
     <ul class="help-list">
       <li v-for="(line, i) in lines" :key="i">{{ line }}</li>
     </ul>
-    <p class="hint">X / Enter / Esc 返回</p>
+    <p class="hint">X / Enter / Esc 返回（游戏 / 背包 / 标题）</p>
   </div>
 </template>
 

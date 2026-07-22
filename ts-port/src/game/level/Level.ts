@@ -1,16 +1,21 @@
 /**
  * Port of level/Level.java.
  *
- * Faithful render/tick/add/remove logic. Continuous mob spawning is omitted
- * for the vertical slice (the original calls trySpawn(1) every tick, which would
- * flood the world); Game.startNewGame() instead places exactly one Zombie.
+ * Faithful render/tick/add/remove logic. Mob spawning is restored: trySpawn()
+ * is a faithful port of Java `Level.trySpawn(int)`, and tick() calls it once
+ * per tick (trySpawn(1)) exactly as the original does. Game.startNewGame()
+ * floods each level to its density cap (the original used trySpawn(5000)),
+ * so the world is populated from the first frame rather than staying empty.
  */
 import type { Screen } from '../../engine/Screen';
 import { Tile } from './tile/Tile';
 import { LevelGen } from './levelgen/LevelGen';
 import type { Entity } from '../entity/Entity';
+import type { Mob } from '../entity/Mob';
 import { Player } from '../entity/Player';
 import { AirWizard } from '../entity/AirWizard';
+import { Zombie } from '../entity/Zombie';
+import { Slime } from '../entity/Slime';
 
 export class Level {
   public w: number;
@@ -225,7 +230,43 @@ export class Level {
     if (idx >= 0) list.splice(idx, 1);
   }
 
+  /**
+   * Faithful port of Java `Level.trySpawn(int count)`: attempt to spawn `count`
+   * random mobs (Slime or Zombie) at a legal start position. The mob level
+   * scales with depth — surface stays lvl 1, deeper caves reach up to (-depth)+1,
+   * and the sky is always lvl 4. Mob.findStartPos() self-limits density against
+   * level.monsterDensity, so this never floods a level past its cap.
+   */
+  public trySpawn(count: number): void {
+    for (let i = 0; i < count; i++) {
+      let mob: Mob;
+
+      let minLevel = 1;
+      let maxLevel = 1;
+      if (this.depth < 0) {
+        maxLevel = -this.depth + 1;
+      }
+      if (this.depth > 0) {
+        minLevel = 4;
+        maxLevel = 4;
+      }
+
+      const lvl = Math.floor(Math.random() * (maxLevel - minLevel + 1)) + minLevel;
+      if (Math.floor(Math.random() * 2) === 0) {
+        mob = new Slime(lvl);
+      } else {
+        mob = new Zombie(lvl);
+      }
+
+      if (mob.findStartPos(this)) {
+        this.add(mob);
+      }
+    }
+  }
+
   public tick(): void {
+    this.trySpawn(1);
+
     for (let i = 0; i < (this.w * this.h) / 50; i++) {
       const xt = Math.floor(Math.random() * this.w);
       const yt = Math.floor(Math.random() * this.h);

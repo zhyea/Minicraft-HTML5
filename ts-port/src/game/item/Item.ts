@@ -54,6 +54,11 @@ export class Item {
     return '';
   }
 
+  /** Short zh-CN blurb for the inventory description area. Base class returns ''. */
+  public getDescription(): string {
+    return '';
+  }
+
   /** Mirrors Java `getClass() == getClass()` — same concrete class. */
   public matches(item: Item): boolean {
     return item.constructor === this.constructor;

@@ -66,8 +66,8 @@ export class WaterTile extends Tile {
     let yn = yt;
     if (Math.random() < 0.5) xn += Math.floor(Math.random() * 2) * 2 - 1;
     else yn += Math.floor(Math.random() * 2) * 2 - 1;
-    if (level.getTile(xn, yn) === Tile.rock) {
-      // (hole tile intentionally omitted from the slice)
+    if (level.getTile(xn, yn) === Tile.hole) {
+      level.setTile(xn, yn, this, 0);
     }
   }
 }

@@ -12,6 +12,7 @@
  *   9  Furnace
  *   10 Oven
  *   11 Lantern
+ *   12 ItemEntity  (dropped item; stores the item + remaining lifetime)
  *
  * 5 (Spark) and all particles are transient and are never written — `write`
  * returns null for anything without a persistent representation, and the caller
@@ -34,11 +35,15 @@ import { Anvil } from '../entity/Anvil';
 import { Furnace } from '../entity/Furnace';
 import { Oven } from '../entity/Oven';
 import { Lantern } from '../entity/Lantern';
+import { ItemEntity } from '../entity/ItemEntity';
+import type { ResourceItem } from '../item/ResourceItem';
 import { ItemIO } from './ItemIO';
 
 interface MobPayload {
   x: number;
   y: number;
+  xr: number; // P2-8: persisted radial hitbox (Java EntityIO.writeEntityBase)
+  yr: number;
   walkDist: number;
   dir: number;
   hurtTime: number;
@@ -54,6 +59,8 @@ function writeMobCommon(m: Mob): MobPayload {
   return {
     x: m.x,
     y: m.y,
+    xr: m.xr,
+    yr: m.yr,
     walkDist: m.walkDist,
     dir: m.dir,
     hurtTime: m.hurtTime,
@@ -69,6 +76,8 @@ function writeMobCommon(m: Mob): MobPayload {
 function applyMobCommon(m: Mob, o: MobPayload): void {
   m.x = o.x;
   m.y = o.y;
+  m.xr = o.xr ?? 4; // P2-8: matches Mob ctor default (xr=4, yr=3)
+  m.yr = o.yr ?? 3;
   m.walkDist = o.walkDist ?? 0;
   m.dir = o.dir ?? 0;
   m.hurtTime = o.hurtTime ?? 0;
@@ -132,23 +141,38 @@ export class EntityIO {
         col: e.col,
         sprite: e.sprite,
         name: e.name,
+        pushTime: e.pushTime, // P2-7
+        pushDir: e.pushDir, // P2-7
         inventory: writeInventory(e.inventory),
       };
     }
     if (e instanceof Workbench) {
-      return { t: 7, x: e.x, y: e.y, col: e.col, sprite: e.sprite, name: e.name };
+      return { t: 7, x: e.x, y: e.y, col: e.col, sprite: e.sprite, name: e.name, pushTime: e.pushTime, pushDir: e.pushDir };
     }
     if (e instanceof Anvil) {
-      return { t: 8, x: e.x, y: e.y, col: e.col, sprite: e.sprite, name: e.name };
+      return { t: 8, x: e.x, y: e.y, col: e.col, sprite: e.sprite, name: e.name, pushTime: e.pushTime, pushDir: e.pushDir };
     }
     if (e instanceof Furnace) {
-      return { t: 9, x: e.x, y: e.y, col: e.col, sprite: e.sprite, name: e.name };
+      return { t: 9, x: e.x, y: e.y, col: e.col, sprite: e.sprite, name: e.name, pushTime: e.pushTime, pushDir: e.pushDir };
     }
     if (e instanceof Oven) {
-      return { t: 10, x: e.x, y: e.y, col: e.col, sprite: e.sprite, name: e.name };
+      return { t: 10, x: e.x, y: e.y, col: e.col, sprite: e.sprite, name: e.name, pushTime: e.pushTime, pushDir: e.pushDir };
     }
     if (e instanceof Lantern) {
-      return { t: 11, x: e.x, y: e.y, col: e.col, sprite: e.sprite, name: e.name };
+      return { t: 11, x: e.x, y: e.y, col: e.col, sprite: e.sprite, name: e.name, pushTime: e.pushTime, pushDir: e.pushDir };
+    }
+    if (e instanceof ItemEntity) {
+      // The dropped item is always a ResourceItem in the slice; persist it so
+      // ground loot survives a save/load instead of vanishing.
+      return {
+        t: 12,
+        x: e.x,
+        y: e.y,
+        lifeTime: e.lifeTime,
+        time: e.time,
+        hurtTime: e.hurtTime,
+        item: ItemIO.write(e.item),
+      };
     }
     // Spark, particles and any unknown entity: do not persist.
     return null;
@@ -193,6 +217,8 @@ export class EntityIO {
         c.col = obj.col as number;
         c.sprite = obj.sprite as number;
         c.name = obj.name as string;
+        c.pushTime = (obj.pushTime as number) ?? 0; // P2-7
+        c.pushDir = (obj.pushDir as number) ?? -1; // P2-7
         readInventoryInto(c.inventory, obj.inventory);
         return c;
       }
@@ -208,7 +234,18 @@ export class EntityIO {
         f.col = obj.col as number;
         f.sprite = obj.sprite as number;
         f.name = obj.name as string;
+        f.pushTime = (obj.pushTime as number) ?? 0; // P2-7
+        f.pushDir = (obj.pushDir as number) ?? -1; // P2-7
         return f;
+      }
+      case 12: {
+        const item = ItemIO.read(obj.item) as ResourceItem | null;
+        if (!item) return null;
+        const ie = new ItemEntity(item, obj.x as number, obj.y as number);
+        ie.lifeTime = (obj.lifeTime as number) ?? ie.lifeTime;
+        ie.time = (obj.time as number) ?? ie.time;
+        ie.hurtTime = (obj.hurtTime as number) ?? 0;
+        return ie;
       }
       default:
         return null;

@@ -2,4 +2,15 @@ out/*
 *.class
 */dist
 */node_modules
+ts-port/dist
+ts-port/node_modules
 .gradle
+
+# Windows reserved device-name files (e.g. nul/CON/PRN) — Git cannot add these on Windows.
+# A 0-byte 'nul' junk file appeared in the repo root; ignore so `git add .` skips it.
+nul
+
+# IntelliJ IDEA per-user / workspace files (not source; also kills the LF->CRLF warning on *.iws)
+*.iws
+*.ipr
+.idea/

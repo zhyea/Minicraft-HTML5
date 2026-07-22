@@ -16,6 +16,7 @@ import type { Screen } from '../../engine/Screen';
 import type { Entity } from '../entity/Entity';
 import { Rand } from '../../engine/Rand';
 import { Color } from '../../engine/Color';
+import { Font } from '../../engine/Font';
 import { Item } from './Item';
 import { ToolType } from './ToolType';
 
@@ -55,10 +56,25 @@ export class ToolItem extends Item {
 
   public renderInventory(screen: Screen, x: number, y: number): void {
     screen.render(x, y, this.getSprite(), this.getColor(), 0);
+    // Java ToolItem.java:49 — also draw the item name beside the icon.
+    Font.draw(this.getName(), screen, x + 8, y, Color.get(-1, 555, 555, 555));
   }
+
+  private static readonly TOOL_DESC: Record<string, string> = {
+    '剑': '近战武器，伤害随等级显著提升；手持按攻击键攻击。',
+    '斧': '既是武器也能砍树，砍树比剑快；等级越高越锋利。',
+    '锄': '把草地或泥土锄成耕地，再种下种子长小麦。',
+    '镐': '挖石头和矿石的必备工具，徒手挖不动就用它。',
+    '铲': '挖沙、泥土和填洞都更快，整理地形的好帮手。',
+  };
 
   public getName(): string {
     return ToolItem.LEVEL_NAMES[this.level] + this.type.name;
+  }
+
+  public getDescription(): string {
+    const base = ToolItem.TOOL_DESC[this.type.name] ?? '';
+    return base + '（木<石<铁<金<宝石，等级越高，伤害或效率越高。）';
   }
 
   public onTake(_itemEntity: unknown): void {}

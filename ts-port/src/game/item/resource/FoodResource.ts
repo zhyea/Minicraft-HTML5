@@ -14,8 +14,8 @@ export class FoodResource extends Resource {
   private heal: number;
   private staminaCost: number;
 
-  constructor(name: string, sprite: number, color: number, heal: number, staminaCost: number) {
-    super(name, sprite, color);
+  constructor(name: string, sprite: number, color: number, description = '', heal: number, staminaCost: number) {
+    super(name, sprite, color, description);
     this.heal = heal;
     this.staminaCost = staminaCost;
   }
@@ -26,5 +26,15 @@ export class FoodResource extends Resource {
       return true;
     }
     return false;
+  }
+
+  /** Heal amount granted on a successful eat (read by Player feedback). */
+  public getHeal(): number {
+    return this.heal;
+  }
+
+  /** Stamina cost charged on a successful eat (read by Player feedback). */
+  public getStaminaCost(): number {
+    return this.staminaCost;
   }
 }

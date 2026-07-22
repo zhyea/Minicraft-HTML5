@@ -43,12 +43,14 @@ export class Resource {
   public readonly name: string;
   public readonly sprite: number;
   public readonly color: number;
+  public readonly description: string;
 
-  constructor(name: string, sprite: number, color: number) {
+  constructor(name: string, sprite: number, color: number, description = '') {
     if (name.length > 6) throw new Error('Name cannot be longer than six characters!');
     this.name = name;
     this.sprite = sprite;
     this.color = color;
+    this.description = description;
   }
 
   public interactOn(_tile: Tile, _level: Level, _xt: number, _yt: number, _player: Player, _attackDir: number): boolean {

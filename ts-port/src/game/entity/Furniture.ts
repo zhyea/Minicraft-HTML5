@@ -24,8 +24,9 @@ export class Furniture extends Entity {
   public sprite = 0;
   public name: string;
 
-  private pushTime = 0;
-  private pushDir = -1;
+  // Persisted by EntityIO — Java EntityIO.writeFurniture writes pushTime/pushDir.
+  public pushTime = 0;
+  public pushDir = -1;
   private shouldTake: Player | null = null;
 
   /** Sprint-3 menu-open hook (Sprint 5 replaces with a menu registry). */
@@ -78,9 +79,18 @@ export class Furniture extends Entity {
     this.shouldTake = player;
   }
 
-  /** Menu-open hook; returns the hook's result, or false when unwired. */
+  /**
+   * Menu-open hook. A per-furniture `onUse` (if wired) takes priority;
+   * otherwise route through Game.furnitureUseHandler — the hook App.vue installs
+   * to translate a used furniture into the right Vue menu (CraftingMenu for
+   * workbench/anvil/furnace/oven, ContainerMenu for chest). Returns false when
+   * nothing handles the use, so Player.use() can fall back to the inventory.
+   */
   public use(player: Player, attackDir: number): boolean {
-    return this.onUse ? this.onUse(player, attackDir) : false;
+    if (this.onUse) return this.onUse(player, attackDir);
+    const handler = player.game.furnitureUseHandler;
+    if (handler) return handler(this, player, attackDir);
+    return false;
   }
 
   /**

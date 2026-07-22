@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { installTiles } from '../level/tile/registry';
 import { installResources } from '../item/resource/registry';
 import { installRecipes } from '../crafting/Crafting';
@@ -65,7 +65,7 @@ describe('Lantern light radius', () => {
   });
 });
 
-describe('Workbench use hook (menu-open wiring)', () => {
+describe('Workbench use hook (onUse priority)', () => {
   it('use triggers the onUse hook and propagates its return value', () => {
     const game = new Game();
     const player = new Player(game, game.input);
@@ -105,5 +105,30 @@ describe('Sprint-2 FurnitureStub reconciliation', () => {
     expect(typeof bench.sprite).toBe('number');
     expect(typeof bench.name).toBe('string');
     expect(bench.name).toBe('工作台');
+  });
+});
+
+describe('Furniture.use() -> Game.furnitureUseHandler routing (Task #24)', () => {
+  it('routes a used workbench to the UI handler and returns its result', () => {
+    const game = new Game();
+    const player = new Player(game, game.input);
+    const wb = new Workbench();
+
+    const handler = vi.fn((f: Furniture) => f instanceof Workbench);
+    game.furnitureUseHandler = handler;
+
+    const used = wb.use(player, 0);
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.calls[0][0]).toBe(wb);
+    expect(used).toBe(true);
+  });
+
+  it('returns false when no handler is wired (falls back to inventory)', () => {
+    const game = new Game();
+    const player = new Player(game, game.input);
+    const wb = new Workbench();
+    game.furnitureUseHandler = null;
+
+    expect(wb.use(player, 0)).toBe(false);
   });
 });

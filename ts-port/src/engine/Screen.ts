@@ -7,6 +7,7 @@
  * the canvas ImageData. The algorithm is 1:1 with the GWT version.
  */
 import type { SpriteSheet } from './SpriteSheet';
+import { Font } from './Font';
 
 export class Screen {
   public xOffset = 0;
@@ -62,6 +63,37 @@ export class Screen {
         if (col < 255) this.pixels[(x + xp) + (y + yp) * this.w] = col;
       }
     }
+  }
+
+  /**
+   * Draws an 8x8 1-bit glyph bitmap (on-pixel == 1) at (xp, yp) using the same
+   * color mapping as {@link render}. Used by Font for characters not present in
+   * the sprite sheet (built-in bitmap fallback) so the 8px monospace grid and
+   * palette coloring stay identical to ASCII text. `glyph` is a flat 64-int
+   * array indexed [x + y * 8]; 1 means "on" (matching the sheet convention).
+   */
+  public renderGlyph(xp: number, yp: number, glyph: number[], colors: number): void {
+    xp -= this.xOffset;
+    yp -= this.yOffset;
+    for (let y = 0; y < 8; y++) {
+      const ys = y;
+      if (y + yp < 0 || y + yp >= this.h) continue;
+      for (let x = 0; x < 8; x++) {
+        if (x + xp < 0 || x + xp >= this.w) continue;
+        const sp = glyph[x + ys * 8];
+        const col = (colors >> (sp * 8)) & 0xff;
+        if (col < 255) this.pixels[(x + xp) + (y + yp) * this.w] = col;
+      }
+    }
+  }
+
+  /**
+   * Convenience text entry point (mirrors gfx.Font.draw). Delegates to the Font
+   * module, which renders each glyph 8px apart via {@link render} / {@link
+   * renderGlyph}.
+   */
+  public draw(text: string, x: number, y: number, color: number): void {
+    Font.draw(text, this, x, y, color);
   }
 
   public setOffset(xOffset: number, yOffset: number): void {

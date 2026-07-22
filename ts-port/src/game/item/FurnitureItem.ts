@@ -60,7 +60,20 @@ export class FurnitureItem extends Item {
     return this.placed;
   }
 
+  private static readonly FURNITURE_DESC: Record<string, string> = {
+    '工作台': '靠近按 X 打开合成界面，做木石级工具与多种家具。',
+    '铁砧': '靠近按 X 打开，合成铁、金、宝石级工具武器。',
+    '熔炉': '靠近按 X 打开，矿石加煤烧成锭，沙烧成玻璃。',
+    '烤箱': '靠近按 X 打开，把收获的小麦烤成面包。',
+    '箱子': '靠近按 X 打开，扩展你的额外储物空间。',
+    '灯笼': '放置后发出光亮，照亮黑夜与地下深处。',
+  };
+
   public getName(): string {
     return this.furniture.name;
+  }
+
+  public getDescription(): string {
+    return FurnitureItem.FURNITURE_DESC[this.furniture.name] ?? '';
   }
 }

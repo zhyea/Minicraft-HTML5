@@ -2,11 +2,12 @@
  * Port of entity/particle/SmashParticle.java.
  *
  * A short-lived 4-pixel burst shown when a tile is broken. The GWT constructor
- * plays Sound.monsterHurt — audio is omitted in the slice.
+ * plays Sound.monsterHurt (Java SmashParticle.java:14) — wired to match.
  */
 import { Entity } from '../Entity';
 import type { Screen } from '../../../engine/Screen';
 import { Color } from '../../../engine/Color';
+import { Sound } from '../../audio/Sound';
 
 export class SmashParticle extends Entity {
   private time = 0;
@@ -15,6 +16,7 @@ export class SmashParticle extends Entity {
     super();
     this.x = x;
     this.y = y;
+    Sound.play('monsterHurt'); // Java SmashParticle.java:14
   }
 
   public tick(): void {

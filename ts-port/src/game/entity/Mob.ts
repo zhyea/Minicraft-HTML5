@@ -10,6 +10,7 @@ import { Tile } from '../level/tile/Tile';
 import type { Tile as TileType } from '../level/tile/Tile';
 import { TextParticle } from './particle/TextParticle';
 import { Color } from '../../engine/Color';
+import { Sound } from '../audio/Sound';
 
 export abstract class Mob extends Entity {
   public walkDist = 0;
@@ -91,6 +92,10 @@ export abstract class Mob extends Entity {
     this.doHurt(damage, attackDir);
   }
 
+  public hurtTile(_tile: TileType, _x: number, _y: number, dmg: number): void {
+    this.doHurt(dmg, this.dir ^ 1);
+  }
+
   protected doHurt(damage: number, attackDir: number): void {
     if (this.hurtTime > 0) return;
     if (this.level) {
@@ -102,6 +107,7 @@ export abstract class Mob extends Entity {
     if (attackDir === 2) this.xKnockback = -6;
     if (attackDir === 3) this.xKnockback = 6;
     this.hurtTime = 10;
+    Sound.play('monsterHurt');
   }
 
   public findStartPos(level: Level): boolean {

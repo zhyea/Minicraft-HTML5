@@ -8,6 +8,9 @@ import type { Screen } from '../../engine/Screen';
 import type { Level } from '../level/Level';
 import type { Tile } from '../level/tile/Tile';
 import type { Mob } from './Mob';
+import type { Player } from './Player'; // type-only: no runtime cycle
+import type { Item } from '../item/Item'; // type-only: no runtime cycle
+import type { ItemEntity } from './ItemEntity'; // type-only: no runtime cycle
 
 export class Entity {
   public x = 0;
@@ -100,12 +103,33 @@ export class Entity {
 
   protected touchedBy(_entity: Entity): void {}
 
+  /** Pickup hook. Default no-op; ItemEntity.touchedBy calls this, Player overrides. */
+  public touchItem(_itemEntity: ItemEntity): void {}
+
   public isBlockableBy(_mob: Mob): boolean {
     return true;
   }
 
   public canSwim(): boolean {
     return false;
+  }
+
+  /**
+   * Use hook (Java `Entity.use(Player, attackDir)`). Default no-op; Furniture
+   * overrides it to open its menu. Invoked by Player.use() (the menu/X key).
+   */
+  public use(_player: Player, _attackDir: number): boolean {
+    return false;
+  }
+
+  /**
+   * Interact hook (Java `Entity.interact(Player, Item, attackDir)`). Default
+   * forwards to `item.interact(player, this, attackDir)` — i.e. the player's
+   * held item is used *on* this entity. Invoked by Player.attack() when the
+   * player holds an item and an entity is in front.
+   */
+  public interact(player: Player, item: Item, attackDir: number): boolean {
+    return item.interact(player, this, attackDir);
   }
 
   public getLightRadius(): number {

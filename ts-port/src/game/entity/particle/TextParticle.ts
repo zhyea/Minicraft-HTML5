@@ -2,16 +2,18 @@
  * Port of entity/particle/TextParticle.java.
  *
  * A floating damage/number readout. The GWT physics (gaussian jitter + bounce)
- * are ported 1:1; the text glyphs (gfx.Font.draw) are not ported in the slice,
- * so render() draws a single coloured marker at the particle's floating
- * position instead of the string — faithful behaviour, simplified visual.
+ * are ported 1:1; render() now blits the real string through Font.draw (the
+ * gfx.Font Java port) instead of a single coloured marker, so damage numbers
+ * show as actual digits — fixing the "colour block" regression.
  */
 import { Entity } from '../Entity';
 import type { Screen } from '../../../engine/Screen';
 import { Rand } from '../../../engine/Rand';
+import { Font } from '../../../engine/Font';
 
 export class TextParticle extends Entity {
   private col: number;
+  private msg: string;
   private time = 0;
   public xa = 0;
   public ya = 0;
@@ -21,11 +23,12 @@ export class TextParticle extends Entity {
   public zz = 0;
   private rand = new Rand();
 
-  constructor(_msg: string, x: number, y: number, col: number) {
+  constructor(msg: string, x: number, y: number, col: number) {
     super();
     this.x = x;
     this.y = y;
     this.col = col;
+    this.msg = msg;
     this.xx = x;
     this.yy = y;
     this.zz = 2;
@@ -57,6 +60,6 @@ export class TextParticle extends Entity {
   public render(screen: Screen): void {
     const px = this.x;
     const py = this.y - Math.floor(this.zz);
-    screen.render(px, py, 5 + 12 * 32, this.col, 0);
+    Font.draw(this.msg, screen, px, py, this.col);
   }
 }

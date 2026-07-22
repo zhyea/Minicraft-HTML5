@@ -14,8 +14,8 @@ export class PlantableResource extends Resource {
   private sourceTiles: Tile[];
   private targetTile: Tile;
 
-  constructor(name: string, sprite: number, color: number, targetTile: Tile, ...sourceTiles: Tile[]) {
-    super(name, sprite, color);
+  constructor(name: string, sprite: number, color: number, description = '', targetTile: Tile, ...sourceTiles: Tile[]) {
+    super(name, sprite, color, description);
     this.sourceTiles = sourceTiles;
     this.targetTile = targetTile;
   }

@@ -52,10 +52,25 @@ describe('InventoryMenu', () => {
     const items = [new ResourceItem(Resource.wood, 5), new ToolItem(ToolType.sword, 0)];
     const wrapper = track(mount(InventoryMenu, { props: { items } }));
 
-    expect(wrapper.findAll('.item-row').length).toBe(2);
+    expect(wrapper.findAll('.item-cell').length).toBe(2);
     expect(wrapper.text()).toContain('木'); // wood (Chinese display name)
     expect(wrapper.text()).toContain('x5'); // stacked count
     expect(wrapper.text()).toContain('木剑'); // tool display name
+  });
+
+  it('emits "select" with the clicked item so App can equip it', async () => {
+    const items = [new ResourceItem(Resource.wood, 5), new ToolItem(ToolType.sword, 0)];
+    const wrapper = track(mount(InventoryMenu, { props: { items } }));
+
+    await wrapper.findAll('.item-cell')[1].trigger('click');
+
+    const emitted = wrapper.emitted('select');
+    expect(emitted).toBeTruthy();
+    // payload[0] is the Item the player chose to hold (reactive proxy of it).
+    const chosen = emitted![0][0] as ToolItem;
+    expect(chosen).toBeInstanceOf(ToolItem);
+    expect(chosen.getName()).toBe('木剑');
+    expect(chosen.level).toBe(0);
   });
 });
 

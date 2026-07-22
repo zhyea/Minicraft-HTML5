@@ -11,6 +11,7 @@ import { Mob } from './Mob';
 import type { Entity } from './Entity';
 import { Player } from './Player';
 import { Spark } from './Spark';
+import { Sound } from '../audio/Sound';
 
 export class AirWizard extends Mob {
   private xa = 0;
@@ -160,6 +161,6 @@ export class AirWizard extends Mob {
       this.level.player.score += 1000;
       this.level.player.gameWon();
     }
-    // Sound.bossdeath.play() — audio dropped for slice.
+    Sound.play('bossdeath');
   }
 }

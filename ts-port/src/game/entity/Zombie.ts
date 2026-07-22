@@ -4,6 +4,9 @@ import type { Screen } from '../../engine/Screen';
 import { Mob } from './Mob';
 import type { Entity } from './Entity';
 import { Player } from './Player';
+import { ItemEntity } from './ItemEntity';
+import { ResourceItem } from '../item/ResourceItem';
+import { Resource } from '../item/resource/Resource';
 
 export class Zombie extends Mob {
   private xa = 0;
@@ -89,6 +92,18 @@ export class Zombie extends Mob {
 
   protected die(): void {
     super.die();
+    // Faithful port of Java Zombie.die(): drop 1-2 cloth ItemEntities, then
+    // award score. (The prior slice build omitted the drops — "no ItemEntity".)
+    const count = Math.floor(Math.random() * 2) + 1;
+    for (let i = 0; i < count; i++) {
+      this.level.add(
+        new ItemEntity(
+          new ResourceItem(Resource.cloth),
+          this.x + Math.floor(Math.random() * 11) - 5,
+          this.y + Math.floor(Math.random() * 11) - 5,
+        ),
+      );
+    }
     if (this.level.player != null) {
       this.level.player.score += 50 * this.lvl;
     }

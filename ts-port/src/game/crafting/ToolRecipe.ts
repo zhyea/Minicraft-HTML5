@@ -19,7 +19,7 @@ export class ToolRecipe extends Recipe {
     this.level = level;
   }
 
-  public craft(inventory: Inventory): void {
+  protected produce(inventory: Inventory): void {
     inventory.add(0, new ToolItem(this.type, this.level));
   }
 }

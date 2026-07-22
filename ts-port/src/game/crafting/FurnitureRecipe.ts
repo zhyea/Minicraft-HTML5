@@ -26,7 +26,7 @@ export class FurnitureRecipe extends Recipe {
     this.type = type;
   }
 
-  public craft(inventory: Inventory): void {
+  protected produce(inventory: Inventory): void {
     inventory.add(0, new FurnitureItem(this.type.newInst()));
   }
 }

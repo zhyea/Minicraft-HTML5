@@ -18,6 +18,11 @@
  *   right   : ArrowRight / KeyD
  *   attack  : KeyC
  *   menu    : KeyX / Enter
+ *   select  : KeyZ            (cycle held item — slice convenience; the
+ *                             original switches items via the inventory menu)
+ *   help    : KeyH            (slice convenience; opens the 玩法说明 panel
+ *                             from the live game so players can read the
+ *                             instructions without quitting to the title)
  */
 export class Key {
   public presses = 0;
@@ -58,7 +63,7 @@ export class Key {
   }
 }
 
-type KeyName = 'up' | 'down' | 'left' | 'right' | 'attack' | 'menu';
+type KeyName = 'up' | 'down' | 'left' | 'right' | 'attack' | 'menu' | 'select' | 'help';
 
 const KEYMAP_CODE: Record<string, KeyName> = {
   ArrowUp: 'up',
@@ -72,6 +77,17 @@ const KEYMAP_CODE: Record<string, KeyName> = {
   KeyC: 'attack',
   KeyX: 'menu',
   Enter: 'menu',
+  KeyZ: 'select',
+  KeyH: 'help',
+  // P2-9: align with Java InputHandler (Tab/Alt = menu, Space/Ctrl/0/- = attack).
+  Tab: 'menu',
+  AltLeft: 'menu',
+  AltRight: 'menu',
+  Space: 'attack',
+  ControlLeft: 'attack',
+  ControlRight: 'attack',
+  Digit0: 'attack',
+  Minus: 'attack',
 };
 
 // Legacy keyCode fallback (some embedded webviews still report keyCode).
@@ -87,6 +103,15 @@ const KEYMAP_KEYCODE: Record<number, KeyName> = {
   67: 'attack',
   88: 'menu',
   13: 'menu',
+  90: 'select',
+  72: 'help',
+  // P2-9: Java InputHandler extra bindings (keydown fallback for webviews).
+  9: 'menu', // Tab
+  18: 'menu', // Alt
+  32: 'attack', // Space
+  17: 'attack', // Ctrl
+  48: 'attack', // Digit0 ('0')
+  45: 'attack', // Minus ('-') — Java VK_MINUS=45
 };
 
 export class InputHandler {
@@ -99,6 +124,8 @@ export class InputHandler {
   public right: Key;
   public attack: Key;
   public menu: Key;
+  public select: Key;
+  public help: Key;
 
   private byName: Record<KeyName, Key>;
 
@@ -109,8 +136,19 @@ export class InputHandler {
     this.right = new Key(3);
     this.attack = new Key(4);
     this.menu = new Key(5);
+    this.select = new Key(6);
+    this.help = new Key(7);
 
-    this.keys.push(this.up, this.down, this.left, this.right, this.attack, this.menu);
+    this.keys.push(
+      this.up,
+      this.down,
+      this.left,
+      this.right,
+      this.attack,
+      this.menu,
+      this.select,
+      this.help,
+    );
     this.byName = {
       up: this.up,
       down: this.down,
@@ -118,6 +156,8 @@ export class InputHandler {
       right: this.right,
       attack: this.attack,
       menu: this.menu,
+      select: this.select,
+      help: this.help,
     };
 
     if (typeof window !== 'undefined') {
