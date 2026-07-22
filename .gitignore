@@ -13,4 +13,8 @@ nul
 # IntelliJ IDEA per-user / workspace files (not source; also kills the LF->CRLF warning on *.iws)
 *.iws
 *.ipr
-.idea/
+.idea/!/ts-port/dist/
+!/ts-port/node_modules/
+!/.gradle/
+/ts-port/node_modules/
+/.gradle/
