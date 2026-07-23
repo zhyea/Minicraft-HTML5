@@ -268,10 +268,32 @@ export class Player extends Mob {
       this.level.add(new TextParticle(`+${heal}`, x, y, Color.get(-1, 50, 50, 50)));
       Sound.play('eat');
     } else if (this.health >= this.maxHealth) {
-      this.level.add(new TextParticle('吃饱了', x, y, Color.get(-1, 550, 550, 550)));
+      this.level.add(new TextParticle('FULL', x, y, Color.get(-1, 550, 550, 550)));
     } else if (this.stamina < res.getStaminaCost()) {
-      this.level.add(new TextParticle('体力不足', x, y, Color.get(-1, 550, 550, 550)));
+      this.level.add(new TextParticle('NO STAMINA', x, y, Color.get(-1, 550, 550, 550)));
     }
+  }
+
+  /**
+   * Eat a food item directly from the inventory (double-click in InventoryMenu).
+   * Reuses the exact food logic: ResourceItem.interactOn -> FoodResource.heal +
+   * stamina cost, then feedbackFood for the particle. Returns true if the player
+   * actually ate (was hurt and could afford stamina). Non-food items are ignored.
+   */
+  public eatFromInventory(item: Item): boolean {
+    if (!(item instanceof ResourceItem)) return false;
+    const res = item.resource;
+    if (!(res instanceof FoodResource)) return false;
+    const tx = this.x >> 4;
+    const ty = this.y >> 4;
+    const tile = this.level.getTile(tx, ty);
+    const ate = item.interactOn(tile, this.level, tx, ty, this, this.dir);
+    this.feedbackFood(item, ate);
+    if (ate && item.isDepleted()) {
+      const idx = this.inventory.items.indexOf(item);
+      if (idx >= 0) this.inventory.items.splice(idx, 1);
+    }
+    return ate;
   }
 
   /** Use the held item on any entity in the box (returns true if one was used). */

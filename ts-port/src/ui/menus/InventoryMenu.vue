@@ -9,6 +9,8 @@
  */
 import { onMounted, onBeforeUnmount, ref, computed } from 'vue';
 import type { Item } from '../../game/item/Item';
+import { ResourceItem } from '../../game/item/ResourceItem';
+import { FoodResource } from '../../game/item/resource/FoodResource';
 import ItemIcon from '../ItemIcon.vue';
 import { groupItems } from '../inventoryGroup';
 import type { InventoryGroup } from '../inventoryGroup';
@@ -18,11 +20,14 @@ const props = defineProps<{ items: Item[] }>();
 const emit = defineEmits<{ (e: 'close'): void; (e: 'help'): void; (e: 'craft'): void; (e: 'save'): void; (e: 'select', item: Item): void }>();
 
 const selected = ref(0);
+/** Bumped after an in-place inventory mutation (e.g. eating a food stack) so
+ *  the grid recomputes even though props.items is the same array reference. */
+const nonce = ref(0);
 
 // Grid column count: drives the up/down navigation step and the CSS grid.
 const GRID_COLS = 9;
 
-const rows = computed<InventoryGroup[]>(() => groupItems(props.items));
+const rows = computed<InventoryGroup[]>(() => { nonce.value; return groupItems(props.items); });
 
 // Selected item's zh-CN description, shown beneath the list. Empty string hides it.
 const selectedDesc = computed(() => {
@@ -86,10 +91,30 @@ function onKey(e: KeyboardEvent): void {
   }
 }
 
-/** Click a cell to equip its representative item (mirrors the C/Enter key path). */
+/** Click a cell: just highlight it (mirrors the keyboard cursor). No equip/close. */
 function selectRow(i: number): void {
+  selected.value = i;
+}
+
+/**
+ * Double-click a cell:
+ *  - Food  -> eat it (heal) and stay in the menu; bump nonce to refresh counts.
+ *  - Other -> legacy behaviour: equip-and-close (emit 'select').
+ * Food is detected locally so a full-HP bite still won't close the menu.
+ */
+function eatRow(i: number): void {
   const row = rows.value[i];
-  if (row) emit('select', row.item);
+  if (!row) return;
+  // Food: eat (heal) and stay in the menu. Requires the live player.
+  if (row.item instanceof ResourceItem && row.item.resource instanceof FoodResource) {
+    const p = getActiveGame()?.player;
+    if (!p) return; // no active game (e.g. headless test) — nothing to eat
+    p.eatFromInventory(row.item);
+    nonce.value++;
+    return;
+  }
+  // Non-food: double-click == equip-and-close (matches the old single-click path).
+  emit('select', row.item);
 }
 
 onMounted(() => window.addEventListener('keydown', onKey));
@@ -110,6 +135,7 @@ onBeforeUnmount(() => {
         class="item-cell"
         :class="{ active: i === selected }"
         @click="selectRow(i)"
+        @dblclick="eatRow(i)"
       >
         <ItemIcon :item="row.item" />
         <span class="cell-name">{{ row.name }}</span>
@@ -125,7 +151,7 @@ onBeforeUnmount(() => {
       <button type="button" class="help-btn" @click="emit('help')">玩法说明 (H)</button>
     </div>
     <p v-if="savedFlash" class="saved-flash">已保存 ✓</p>
-    <p class="hint">↑↓ 选择 · C/Enter 装备并关闭 · E 随身合成 · Q 保存 · X 关闭 · 点「玩法说明」看帮助</p>
+    <p class="hint">单击选中 · 双击食物补血 / 双击其它装备 · C/Enter 装备并关闭 · E 随身合成 · Q 保存 · X 关闭</p>
   </div>
 </template>
 

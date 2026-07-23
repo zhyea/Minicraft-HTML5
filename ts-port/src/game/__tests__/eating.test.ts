@@ -6,6 +6,7 @@ import { Level } from '../level/Level';
 import { Tile } from '../level/tile/Tile';
 import { Player } from '../entity/Player';
 import { Resource } from '../item/resource/Resource';
+import { FoodResource } from '../item/resource/FoodResource';
 import { ResourceItem } from '../item/ResourceItem';
 import { TextParticle } from '../entity/particle/TextParticle';
 import { Sound } from '../audio/Sound';
@@ -105,7 +106,7 @@ describe('Eating feedback: particles + eat SFX (#53)', () => {
     addSpy.mockRestore();
   });
 
-  it('spawns a yellow "吃饱了" hint when full, and never plays the eat sound', () => {
+  it('spawns a yellow "FULL" hint when full, and never plays the eat sound', () => {
     const { level, player } = makePlayer();
     player.health = player.maxHealth;
     player.stamina = player.maxStamina;
@@ -125,12 +126,12 @@ describe('Eating feedback: particles + eat SFX (#53)', () => {
     expect(particles.length).toBeGreaterThan(0);
     const msgs = particles.map((p) => (p as unknown as { msg: string }).msg);
     const cols = particles.map((p) => (p as unknown as { col: number }).col);
-    expect(msgs).toContain('吃饱了');
+    expect(msgs).toContain('FULL');
     expect(cols).toContain(Color.get(-1, 550, 550, 550)); // yellow
     addSpy.mockRestore();
   });
 
-  it('spawns a yellow "体力不足" hint when stamina is too low', () => {
+  it('spawns a yellow "NO STAMINA" hint when stamina is too low', () => {
     const { level, player } = makePlayer();
     player.health = 8;
     player.stamina = 3; // < bread cost 5
@@ -145,7 +146,64 @@ describe('Eating feedback: particles + eat SFX (#53)', () => {
       .filter((e) => e instanceof TextParticle) as TextParticle[];
     expect(particles.length).toBeGreaterThan(0);
     const msgs = particles.map((p) => (p as unknown as { msg: string }).msg);
-    expect(msgs).toContain('体力不足');
+    expect(msgs).toContain('NO STAMINA');
     addSpy.mockRestore();
+  });
+});
+
+describe('Eat from inventory via player.eatFromInventory (double-click, #INV-DBLCLICK-EAT-01)', () => {
+  it('heals the player, consumes one, and returns true when hurt (apple)', () => {
+    const { player } = makePlayer();
+    player.health = 8; // below maxHealth (10)
+    player.stamina = player.maxStamina; // 10 >= apple cost 5
+    const apple = new ResourceItem(Resource.apple, 1);
+    const expectedHeal = (Resource.apple as FoodResource).getHeal();
+
+    const ate = player.eatFromInventory(apple);
+
+    expect(ate).toBe(true);
+    expect(player.health).toBe(Math.min(player.maxHealth, 8 + expectedHeal));
+    expect(apple.count).toBe(0); // one consumed
+  });
+
+  it('does nothing and returns false when already at full HP', () => {
+    const { player } = makePlayer();
+    player.health = player.maxHealth; // full
+    player.stamina = player.maxStamina;
+    const apple = new ResourceItem(Resource.apple, 2);
+
+    const ate = player.eatFromInventory(apple);
+
+    expect(ate).toBe(false);
+    expect(player.health).toBe(player.maxHealth); // unchanged
+    expect(apple.count).toBe(2); // untouched
+  });
+
+  it('returns false and is a no-op for a non-food item (wood)', () => {
+    const { player } = makePlayer();
+    player.health = 8;
+    player.stamina = player.maxStamina;
+    const wood = new ResourceItem(Resource.wood, 3);
+
+    const ate = player.eatFromInventory(wood);
+
+    expect(ate).toBe(false);
+    expect(player.health).toBe(8); // unchanged
+    expect(wood.count).toBe(3); // untouched
+  });
+
+  it('removes the depleted food from the inventory after eating the last one', () => {
+    const { player } = makePlayer();
+    player.health = 8;
+    player.stamina = player.maxStamina;
+    const apple = new ResourceItem(Resource.apple, 1);
+    player.inventory.add(apple); // the real instance lives in the inventory
+    expect(player.inventory.items).toContain(apple);
+
+    const ate = player.eatFromInventory(apple);
+
+    expect(ate).toBe(true);
+    expect(player.inventory.items.indexOf(apple)).toBe(-1);
+    expect(player.inventory.items).not.toContain(apple);
   });
 });

@@ -58,11 +58,17 @@ describe('InventoryMenu', () => {
     expect(wrapper.text()).toContain('木剑'); // tool display name
   });
 
-  it('emits "select" with the clicked item so App can equip it', async () => {
+  it('double-click on a non-food item emits "select" so App can equip it', async () => {
     const items = [new ResourceItem(Resource.wood, 5), new ToolItem(ToolType.sword, 0)];
     const wrapper = track(mount(InventoryMenu, { props: { items } }));
 
+    // Single click must NOT equip/close — it only highlights (new contract:
+    // #INV-DBLCLICK-EAT-01 moved equip to double-click / C-Enter).
     await wrapper.findAll('.item-cell')[1].trigger('click');
+    expect(wrapper.emitted('select')).toBeFalsy();
+
+    // Double-click on a non-food cell equips it (legacy single-click path).
+    await wrapper.findAll('.item-cell')[1].trigger('dblclick');
 
     const emitted = wrapper.emitted('select');
     expect(emitted).toBeTruthy();
